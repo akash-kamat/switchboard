@@ -1,0 +1,10 @@
+PackageIdentifier: AkashKamat.Switchboard
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Akash Kamat
+PackageName: Switchboard
+License: MIT
+ShortDescription: Lightweight dashboard for system services and Docker containers
+PackageUrl: https://github.com/akash-kamat/switchboard
+ManifestType: defaultLocale
+ManifestVersion: 1.9.0

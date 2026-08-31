@@ -1,0 +1,16 @@
+PackageIdentifier: AkashKamat.Switchboard
+PackageVersion: 0.1.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+  - RelativeFilePath: switchboard.exe
+    PortableCommandAlias: switchboard
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/akash-kamat/switchboard/releases/download/v0.1.0/switchboard_windows_amd64.zip
+    InstallerSha256: db7c3d139e24957a34f255535cb06159ba152b70c4604887891e532d432724ce
+  - Architecture: arm64
+    InstallerUrl: https://github.com/akash-kamat/switchboard/releases/download/v0.1.0/switchboard_windows_arm64.zip
+    InstallerSha256: 77bb367ce60aadb9d21d40c6a147e4f62f84898cf4e73ef4221e6a7780c9e7b2
+ManifestType: installer
+ManifestVersion: 1.9.0

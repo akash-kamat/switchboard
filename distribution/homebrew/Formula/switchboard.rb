@@ -1,27 +1,27 @@
 class Switchboard < Formula
   desc "Lightweight dashboard for system services and Docker containers"
   homepage "https://github.com/akash-kamat/switchboard"
-  version "0.1.1"
+  version "0.1.2"
   license "MIT"
 
   on_macos do
     on_intel do
-      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_darwin_amd64.tar.gz"
-      sha256 "e562e2f213dfd002b174217dc718979afbf1dcf5b416a9547a8afd6aae4c72bf"
+      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_darwin_amd64.tar.gz"
+      sha256 "8605ade6109322e73935d9e974f1731808aa12d5c7feaf7cdd4f6fd370850b3f"
     end
     on_arm do
-      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_darwin_arm64.tar.gz"
-      sha256 "01ff37328a755a59271b76722c1ab5d2da4446320e046a1b82177d8c1bb911c1"
+      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_darwin_arm64.tar.gz"
+      sha256 "2a34d97e001060207d35db1d98fa85b9a1ae70143225ef3051b725320c4ed24b"
     end
   end
   on_linux do
     on_intel do
-      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_linux_amd64.tar.gz"
-      sha256 "475ff9b987b29116d3faad516800d51d6cbbd30360e883b396f986974e509ede"
+      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_linux_amd64.tar.gz"
+      sha256 "45ed08622f9734e629c645dec9bf79a727298cb6b793b26fa597c27bc19b216e"
     end
     on_arm do
-      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_linux_arm64.tar.gz"
-      sha256 "5239d50c25e01197d5638e0356586bfe843ecd434e0ba59129e32282350bd375"
+      url "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_linux_arm64.tar.gz"
+      sha256 "e3c0ef8d10228ee76961b424a6cdbccb9da8f616d7bf276a417a5de0b036a3a7"
     end
   end
 

@@ -1,16 +1,16 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lightweight dashboard for system services and Docker containers",
   "homepage": "https://github.com/akash-kamat/switchboard",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_windows_amd64.zip",
-      "hash": "8b86e6f935fbd53e754d7bc1976c4b02501f68d3c7479650be136c4efb111e40"
+      "url": "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_windows_amd64.zip",
+      "hash": "ead7d2800038e8ada8c88da05e20f9aa3b987549bc526f6e6f03b7c3433941e2"
     },
     "arm64": {
-      "url": "https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_windows_arm64.zip",
-      "hash": "ee480bcc2282bbbd75898b32d3a24fc4ecd14dc851943949f094da3ed1b7cf20"
+      "url": "https://github.com/akash-kamat/switchboard/releases/download/v0.1.2/switchboard_windows_arm64.zip",
+      "hash": "986825cb20fe83f76563ec9a68c360b1bc3690354f0a56d1f3f170ca23b2a412"
     }
   },
   "bin": "switchboard.exe",

@@ -71,6 +71,8 @@ the installer.
 Tagged releases provide `.deb`, `.rpm`, and `.pkg.tar.zst` packages for amd64,
 arm64, and ARMv7, plus portable archives. The native-package commands and manual
 fallback are documented in [docs/linux-installation.md](docs/linux-installation.md).
+One-line installers, reproducible version selection, checksums, SBOMs, and
+Sigstore verification are documented in [docs/releases.md](docs/releases.md).
 
 Switchboard has no login by design. Keep it on a trusted LAN, bind it to `127.0.0.1:8080` behind an authenticated reverse proxy, or firewall port 8080 from untrusted networks.
 

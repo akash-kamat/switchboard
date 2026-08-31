@@ -188,56 +188,56 @@ Implement native behavior instead of merely producing compilable binaries.
 
 ## Phase 4 — Reproducible releases and one-line installers
 
-**Current phase**
-
 Automate builds so users never need Go installed.
 
 ### Release automation
 
-- [ ] Build Linux amd64, arm64, and armv7 artifacts.
-- [ ] Build Windows amd64 and arm64 artifacts.
-- [ ] Build macOS amd64 and arm64 artifacts.
-- [ ] Build deb, rpm, and Arch package artifacts.
-- [ ] Produce SHA-256 checksums for every artifact.
-- [ ] Generate a software bill of materials where practical.
-- [ ] Sign release artifacts and document signature verification.
-- [ ] Attach artifacts and release notes to versioned GitHub releases.
-- [ ] Trigger releases from semantic-version tags such as `v1.0.0`.
-- [ ] Prevent publishing when tests or cross-platform builds fail.
+- [x] Build Linux amd64, arm64, and armv7 artifacts.
+- [x] Build Windows amd64 and arm64 artifacts.
+- [x] Build macOS amd64 and arm64 artifacts.
+- [x] Build deb, rpm, and Arch package artifacts.
+- [x] Produce SHA-256 checksums for every artifact.
+- [x] Generate a software bill of materials where practical.
+- [x] Sign release artifacts and document signature verification.
+- [x] Attach artifacts and release notes to versioned GitHub releases.
+- [x] Trigger releases from semantic-version tags such as `v1.0.0`.
+- [x] Prevent publishing when tests or cross-platform builds fail.
 
 ### Install scripts
 
-- [ ] Create `install.sh` for Linux and macOS.
-- [ ] Create `install.ps1` for Windows.
-- [ ] Detect OS, architecture, available package format, and init system.
-- [ ] Download only from HTTPS release URLs.
-- [ ] Verify checksums/signatures before installing anything.
-- [ ] Install the native service using the platform-appropriate mechanism.
-- [ ] Preserve configuration during upgrades.
-- [ ] Support an explicit version argument for reproducible installation.
-- [ ] Provide uninstall instructions.
-- [ ] Keep scripts readable and safe to download and inspect before execution.
-- [ ] Publish both one-line and inspect-before-running instructions.
+- [x] Create `install.sh` for Linux and macOS.
+- [x] Create `install.ps1` for Windows.
+- [x] Detect OS, architecture, available package format, and init system.
+- [x] Download only from HTTPS release URLs.
+- [x] Verify checksums/signatures before installing anything.
+- [x] Install the native service using the platform-appropriate mechanism.
+- [x] Preserve configuration during upgrades.
+- [x] Support an explicit version argument for reproducible installation.
+- [x] Provide uninstall instructions.
+- [x] Keep scripts readable and safe to download and inspect before execution.
+- [x] Publish both one-line and inspect-before-running instructions.
 
 Planned commands:
 
 ```sh
-curl -fsSL https://switchboard.example/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/akash-kamat/switchboard/main/install.sh | sudo sh
 ```
 
 ```powershell
-irm https://switchboard.example/install.ps1 | iex
+irm https://raw.githubusercontent.com/akash-kamat/switchboard/main/install.ps1 | iex
 ```
 
-The final domain and URLs must be selected before these commands are published.
+The GitHub raw URLs are canonical until a dedicated project domain is introduced.
 
 ### Exit criteria
 
-- [ ] A clean supported machine can install Switchboard without Go or Node.js.
-- [ ] Installers reject corrupt or unverifiable downloads.
-- [ ] Automated release artifacts produce identical behavior to native packages.
+- [x] A clean supported machine can install Switchboard without Go or Node.js.
+- [x] Installers reject corrupt or unverifiable downloads.
+- [x] Automated release artifacts produce identical behavior to native packages.
 
 ## Phase 5 — Package-manager distribution
+
+**Current phase**
 
 Publish existing signed release artifacts through native package ecosystems.
 

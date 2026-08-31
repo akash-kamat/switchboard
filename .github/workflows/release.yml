@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing semantic-version tag to release
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - run: go vet ./...
+      - name: Cross-compile support matrix
+        run: |
+          set -eu
+          for target in linux/amd64 linux/arm64 linux/arm windows/amd64 windows/arm64 darwin/amd64 darwin/arm64; do
+            os=${target%/*}; arch=${target#*/}; arm=""
+            [ "$target" != linux/arm ] || arm=7
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" GOARM="$arm" go build -trimpath -o /tmp/switchboard ./cmd/switchboard
+          done
+
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Publish binaries and native Linux packages
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: v2.12.7
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate CycloneDX software bill of materials
+        uses: anchore/sbom-action@v0
+        with:
+          path: release-dist
+          format: cyclonedx-json
+          output-file: release-dist/switchboard-sbom.cdx.json
+          upload-artifact: false
+          upload-release-assets: false
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign checksum and SBOM with GitHub OIDC
+        run: |
+          cosign sign-blob --yes --bundle release-dist/checksums.txt.sigstore.json release-dist/checksums.txt
+          cosign sign-blob --yes --bundle release-dist/switchboard-sbom.cdx.json.sigstore.json release-dist/switchboard-sbom.cdx.json
+          gh release upload "${{ inputs.tag || github.ref_name }}" \
+            release-dist/switchboard-sbom.cdx.json \
+            release-dist/checksums.txt.sigstore.json \
+            release-dist/switchboard-sbom.cdx.json.sigstore.json \
+            --clobber

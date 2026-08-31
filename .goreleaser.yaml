@@ -82,6 +82,12 @@ nfpms:
     dependencies:
       - systemd
     contents:
+      - dst: /etc/switchboard
+        type: dir
+        file_info:
+          mode: 0750
+          owner: root
+          group: switchboard
       - src: config.example.yaml
         dst: /etc/switchboard/config.yaml
         type: config|noreplace

@@ -20,7 +20,9 @@ internal/docker/       Docker Engine adapter
 internal/platform/     host capability contracts
 internal/server/       HTTP API and embedded web assets
 deploy/                systemd unit
+packaging/             native package lifecycle scripts
 dist/                  local build output (not committed)
+.goreleaser.yaml       reproducible release and package matrix
 config.example.yaml    documented starter configuration
 PROJECT.md             original project specification
 docs/                  installation, configuration, API, and support contracts
@@ -65,6 +67,10 @@ journalctl -u switchboard -n 100 --no-pager
 The supplied service runs as the unprivileged `switchboard` account. Docker and
 systemd mutations require explicit additional permissions; they are not granted by
 the installer.
+
+Tagged releases provide `.deb`, `.rpm`, and `.pkg.tar.zst` packages for amd64,
+arm64, and ARMv7, plus portable archives. The native-package commands and manual
+fallback are documented in [docs/linux-installation.md](docs/linux-installation.md).
 
 Switchboard has no login by design. Keep it on a trusted LAN, bind it to `127.0.0.1:8080` behind an authenticated reverse proxy, or firewall port 8080 from untrusted networks.
 

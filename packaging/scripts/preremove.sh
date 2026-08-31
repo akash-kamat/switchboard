@@ -1,11 +1,14 @@
 #!/bin/sh
 set -eu
 
-# Debian passes "remove" for final removal, RPM passes 0, and Arch package
-# hooks do not pass an argument. Preserve the administrator configuration in
-# package-owned state so every package manager leaves it at its documented path.
+# Debian passes "upgrade" during an upgrade and RPM passes 1. Arch passes the
+# installed package version during final removal. Treat every other value as a
+# final removal and preserve the administrator configuration in package-owned
+# state so every package manager leaves it at its documented path.
 case "${1:-}" in
-    remove|0|"")
+    upgrade|1)
+        ;;
+    *)
         if [ -f /etc/switchboard/config.yaml ]; then
             install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
             cp -p /etc/switchboard/config.yaml /var/lib/switchboard/.config-uninstall-backup

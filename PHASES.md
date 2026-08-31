@@ -113,7 +113,8 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [x] Install the executable at `/usr/bin/switchboard` for native packages.
 - [x] Store administrator configuration in `/etc/switchboard/config.yaml`.
 - [x] Store persistent writable state in `/var/lib/switchboard`.
-- [ ] Use `/run/switchboard` for temporary runtime state if needed.
+- [x] Confirm `/run/switchboard` is unnecessary while no runtime socket or
+  transient file is created.
 - [x] Log through stdout/stderr so systemd captures logs in the journal.
 - [x] Define ownership and permissions for every installed path.
 
@@ -136,9 +137,10 @@ Deliver a production-quality Linux installation, beginning with systemd.
 ### Packaging
 
 - [x] Create a hardened systemd unit.
-- [ ] Create Debian packages for amd64, arm64, and armv7.
-- [ ] Create RPM packages for amd64, arm64, and armv7 where supported.
-- [ ] Create an Arch Linux `PKGBUILD` for supported architectures.
+- [x] Create Debian packages for amd64, arm64, and armv7.
+- [x] Create RPM packages for amd64, arm64, and armv7 where supported.
+- [x] Create native Arch Linux packages for amd64, arm64, and armv7. The AUR
+  `PKGBUILD` remains a Phase 5 distribution task.
 - [x] Ensure installation creates required users, groups, directories, and files.
 - [x] Ensure upgrades never overwrite an existing configuration.
 - [x] Ensure uninstall stops and removes the service while preserving user data.

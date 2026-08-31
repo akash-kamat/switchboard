@@ -77,20 +77,11 @@ Sigstore verification are documented in [docs/releases.md](docs/releases.md).
 
 ## Package managers
 
-Homebrew and Scoop channels are live:
-
-```sh
-brew tap akash-kamat/switchboard
-brew install switchboard
-```
-
-```powershell
-scoop bucket add switchboard https://github.com/akash-kamat/scoop-switchboard
-scoop install switchboard
-```
-
-See [docs/package-manager-distribution.md](docs/package-manager-distribution.md)
-for upgrade, service, and uninstall commands and the status of other registries.
+Homebrew, Scoop, Winget, Chocolatey, and AUR manifests are generated in this
+repository, but Switchboard is not currently published through an external
+package-manager repository. Install from GitHub Releases or use the one-line
+installer. See [docs/package-manager-distribution.md](docs/package-manager-distribution.md)
+for the current publication status.
 
 Switchboard has no login by design. Keep it on a trusted LAN, bind it to `127.0.0.1:8080` behind an authenticated reverse proxy, or firewall port 8080 from untrusted networks.
 

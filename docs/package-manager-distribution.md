@@ -5,46 +5,31 @@ distribution workflow verifies its checksum manifest and updates ready-to-submit
 definitions under `distribution/` for Homebrew, Scoop, Winget, Chocolatey, and
 the AUR.
 
-The maintained Homebrew tap and Scoop bucket are live. Winget, Chocolatey, and
-AUR publication still requires maintainer accounts or upstream review; apt and
-yum/dnf repositories additionally require an offline-controlled GPG signing key.
-Tokens and private keys must be stored as protected secrets, not committed to
-this repository.
+No external package-manager repository is currently maintained. Homebrew,
+Scoop, Winget, Chocolatey, and AUR definitions remain generated under
+`distribution/` so publication can be resumed later. Registry publication
+requires a separate repository or upstream review; apt and yum/dnf repositories
+also require an offline-controlled GPG signing key.
 
 ## Homebrew
 
-```sh
-brew tap akash-kamat/switchboard
-brew install switchboard
-brew services start switchboard
-```
-
-Use `brew update && brew upgrade switchboard` to upgrade. Stop and remove it with
-`brew services stop switchboard && brew uninstall switchboard`. The tap is
-published at <https://github.com/akash-kamat/homebrew-switchboard> and its formula
-is install-tested on macOS by a separate workflow. Homebrew runs the service as
-the Homebrew user, which normally gives it access to that user's Docker Desktop.
-Use the macOS system installer instead when administrator-level launchd control
-is required.
+The generated formula is stored at
+`distribution/homebrew/Formula/switchboard.rb`. It is not currently published
+as a tap. Use the macOS shell installer from the main repository instead.
 
 ## Scoop
 
-```powershell
-scoop bucket add switchboard https://github.com/akash-kamat/scoop-switchboard
-scoop install switchboard
-```
-
-Use `scoop update switchboard` to upgrade and `scoop uninstall switchboard` to
-remove it. Scoop installs the portable CLI; use `install.ps1` when Windows Service
-registration is wanted. The bucket has a separate Windows installation test.
+The generated manifest is stored at `distribution/scoop/switchboard.json`. It is
+not currently published as a bucket. Use `install.ps1` from the main repository
+for Windows Service registration.
 
 ## Maintainer release procedure
 
 1. Update `CHANGELOG.md`, run all CI workflows, and tag `vMAJOR.MINOR.PATCH`.
 2. Confirm the Release workflow publishes checksums, SBOM, and Sigstore bundles.
 3. Confirm the distribution workflow commits manifests containing no placeholders.
-4. Sync the Homebrew formula and Scoop manifest to their dedicated tap/bucket;
-   both repositories run independent installation checks.
+4. If external repositories are introduced again, sync the Homebrew formula and
+   Scoop manifest to their dedicated tap/bucket and add installation checks.
 5. Submit the generated Winget manifest to `microsoft/winget-pkgs`, the Chocolatey
    package to Chocolatey Community Repository, and the `PKGBUILD` to the AUR.
 6. Publish signed apt/rpm metadata from the exact `.deb`/`.rpm` release assets.

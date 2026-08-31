@@ -243,8 +243,8 @@ Publish existing signed release artifacts through native package ecosystems.
 
 Recommended implementation order:
 
-- [ ] Create a Homebrew tap for macOS and Linux.
-- [ ] Create a Scoop bucket for Windows.
+- [x] Create a Homebrew tap for macOS and Linux.
+- [x] Create a Scoop bucket for Windows.
 - [ ] Submit a Winget package.
 - [ ] Publish Debian packages in an apt repository.
 - [ ] Publish RPM packages in a yum/dnf repository.

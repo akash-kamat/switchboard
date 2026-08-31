@@ -12,12 +12,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: go test ./...
@@ -48,8 +48,8 @@ jobs:
           - goos: darwin
             goarch: arm64
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
@@ -64,8 +64,8 @@ jobs:
   linux-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
@@ -129,3 +129,72 @@ jobs:
             release-dist/*.tar.gz
             release-dist/*.zip
             release-dist/checksums.txt
+
+  rpm-package-lifecycle:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: switchboard-snapshot
+          path: release-dist
+      - name: Test RPM package lifecycle
+        run: |
+          set -eu
+          rpm_file=$(find release-dist -maxdepth 1 -name '*linux_amd64.rpm' -print -quit)
+
+          dnf install -y "$rpm_file"
+          test -x /usr/bin/switchboard
+          id switchboard
+          test "$(stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
+
+          printf '\n# rpm-lifecycle-test\n' >>/etc/switchboard/config.yaml
+          config_hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          rpm --upgrade --replacepkgs "$rpm_file"
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+
+          rpm --erase switchboard
+          test ! -e /usr/bin/switchboard
+          test -f /etc/switchboard/config.yaml
+          test -d /var/lib/switchboard
+
+          dnf install -y "$rpm_file"
+          test -x /usr/bin/switchboard
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+
+  arch-package-lifecycle:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: switchboard-snapshot
+          path: release-dist
+      - name: Test Arch package lifecycle
+        run: |
+          set -eu
+          package=$(find release-dist -maxdepth 1 -name '*linux_amd64.pkg.tar.zst' -print -quit)
+
+          pacman -Sy --noconfirm
+          pacman -U --noconfirm "$package"
+          test -x /usr/bin/switchboard
+          id switchboard
+          test "$(stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
+
+          printf '\n# arch-lifecycle-test\n' >>/etc/switchboard/config.yaml
+          config_hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          pacman -U --noconfirm "$package"
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+
+          pacman -R --noconfirm switchboard
+          test ! -e /usr/bin/switchboard
+          test -f /etc/switchboard/config.yaml
+          test -d /var/lib/switchboard
+
+          pacman -U --noconfirm "$package"
+          test -x /usr/bin/switchboard
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"

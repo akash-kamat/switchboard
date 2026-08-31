@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -125,6 +126,12 @@ func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error
 	if !isLoopbackListen(cfg.Listen) {
 		log.Printf("WARNING: listening on %s exposes an unauthenticated control API; use a firewall or authenticated reverse proxy", cfg.Listen)
 	}
+	listener, err := listenWithDefaultFallback(&cfg, configPath)
+	if err != nil {
+		return err
+	}
+	defer listener.Close()
+
 	srv := &http.Server{
 		Addr:              cfg.Listen,
 		Handler:           server.New(cfg, docker.New(dockerSocket), host.NewNativeBackend(), host.NewSystemCollector(diskPath), configPath),
@@ -137,7 +144,7 @@ func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error
 	serverErr := make(chan error, 1)
 	go func() {
 		log.Printf("Switchboard listening on %s", cfg.Listen)
-		serverErr <- srv.ListenAndServe()
+		serverErr <- srv.Serve(listener)
 	}()
 
 	select {
@@ -154,6 +161,36 @@ func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error
 		}
 		return nil
 	}
+}
+
+// listenWithDefaultFallback keeps the familiar 8080 default, but makes a fresh
+// default installation usable when another application already owns that port.
+// Explicitly configured non-default ports remain strict and fail visibly.
+func listenWithDefaultFallback(cfg *config.Config, configPath string) (net.Listener, error) {
+	listener, err := net.Listen("tcp", cfg.Listen)
+	if err == nil {
+		return listener, nil
+	}
+	hostName, port, splitErr := net.SplitHostPort(cfg.Listen)
+	if splitErr != nil || port != "8080" {
+		return nil, fmt.Errorf("listen on %s: %w", cfg.Listen, err)
+	}
+
+	for candidatePort := 8081; candidatePort <= 8099; candidatePort++ {
+		candidate := net.JoinHostPort(hostName, strconv.Itoa(candidatePort))
+		listener, listenErr := net.Listen("tcp", candidate)
+		if listenErr != nil {
+			continue
+		}
+		cfg.Listen = candidate
+		if _, saveErr := config.Save(configPath, *cfg); saveErr != nil {
+			listener.Close()
+			return nil, fmt.Errorf("save automatically selected listen address %s: %w", candidate, saveErr)
+		}
+		log.Printf("Port 8080 is already in use; selected %s and saved it to %s", candidate, configPath)
+		return listener, nil
+	}
+	return nil, fmt.Errorf("listen on %s: port 8080 and fallback ports 8081-8099 are already in use", cfg.Listen)
 }
 
 func isLoopbackListen(address string) bool {

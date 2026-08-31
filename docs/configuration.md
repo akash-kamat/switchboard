@@ -18,7 +18,7 @@ Future schema changes follow these rules:
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
 | `version` | integer | `1` | Configuration schema version. |
-| `listen` | string | `:8080` | HTTP listen address. |
+| `listen` | string | `:8080` | HTTP listen address. When default port 8080 is occupied, Switchboard selects and saves the first free port from 8081 through 8099. Explicit custom ports fail on collision. |
 | `dashboard` | object | see below | Dashboard presentation and refresh settings. |
 | `services` | list | empty | Managed Docker containers and systemd units. |
 

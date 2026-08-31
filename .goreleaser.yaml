@@ -87,16 +87,16 @@ nfpms:
       - dst: /etc/switchboard
         type: dir
         file_info:
-          mode: 0750
+          mode: 0755
           owner: root
-          group: switchboard
+          group: root
       - src: config.example.yaml
         dst: /etc/switchboard/config.yaml
         type: config|noreplace
         file_info:
-          mode: 0660
+          mode: 0644
           owner: root
-          group: switchboard
+          group: root
       - src: deploy/switchboard.service
         dst: /usr/lib/systemd/system/switchboard.service
         file_info:
@@ -106,9 +106,9 @@ nfpms:
       - dst: /var/lib/switchboard
         type: dir
         file_info:
-          mode: 0750
-          owner: switchboard
-          group: switchboard
+          mode: 0755
+          owner: root
+          group: root
     scripts:
       preinstall: packaging/scripts/preinstall.sh
       postinstall: packaging/scripts/postinstall.sh

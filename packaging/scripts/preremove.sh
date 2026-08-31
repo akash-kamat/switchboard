@@ -10,7 +10,7 @@ case "${1:-}" in
         ;;
     *)
         if [ -f /etc/switchboard/config.yaml ]; then
-            install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
+            install -d -o root -g root -m 0755 /var/lib/switchboard
             cp -p /etc/switchboard/config.yaml /var/lib/switchboard/.config-uninstall-backup
         fi
         if command -v systemctl >/dev/null 2>&1; then

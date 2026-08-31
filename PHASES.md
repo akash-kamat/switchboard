@@ -28,6 +28,10 @@ cross-platform application that can be installed as a native background service.
   is not planned initially.
 - User configuration must be preserved across upgrades and package removal unless
   the user explicitly requests a purge.
+- Native service installations prioritize zero-setup operation: Linux and macOS
+  system installs use root and Windows uses LocalSystem so configured Docker and
+  native-service controls work immediately. The unauthenticated dashboard is
+  therefore an administrator interface for trusted networks only.
 
 ## Target support matrix
 
@@ -116,21 +120,22 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [x] Log through stdout/stderr so systemd captures logs in the journal.
 - [x] Define ownership and permissions for every installed path.
 
-### Least-privilege security
+### Privileged integration security
 
-- [x] Create a dedicated system user and group named `switchboard`.
-- [x] Run the web server without root privileges.
+- [x] Run native installations with the platform administrator identity so all
+  advertised controls work without post-install permission commands.
 - [x] Bind to loopback by default or clearly warn before exposing the dashboard.
 - [x] Threat-model Docker socket access, which is effectively root-level access.
-- [x] Do not silently add the service account to the Docker group.
-- [x] Design an explicit opt-in mechanism for Docker control.
-- [x] Design narrowly scoped privilege elevation for approved systemd operations.
+- [x] Document that administrator-level Docker access is enabled by native
+  installations and makes the unauthenticated API trusted-network-only.
+- [x] Use the native administrator identity for direct configured systemd and
+  Docker operations.
 - [x] Validate service/container identifiers before invoking control operations.
 - [x] Avoid shell command construction; pass arguments directly to processes.
 - [x] Add authentication guidance before supporting non-loopback access.
 - [x] Harden the systemd unit where compatible, including filesystem and privilege
   restrictions.
-- [x] Document the security consequences of every optional privileged feature.
+- [x] Document the security consequences of administrator-level operation.
 
 ### Packaging
 
@@ -139,7 +144,7 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [x] Create RPM packages for amd64, arm64, and armv7 where supported.
 - [x] Create native Arch Linux packages for amd64, arm64, and armv7. The AUR
   `PKGBUILD` remains a Phase 5 distribution task.
-- [x] Ensure installation creates required users, groups, directories, and files.
+- [x] Ensure installation creates required directories and files.
 - [x] Ensure upgrades never overwrite an existing configuration.
 - [x] Ensure uninstall stops and removes the service while preserving user data.
 - [x] Provide an explicit purge path for configuration and state.
@@ -150,8 +155,7 @@ Deliver a production-quality Linux installation, beginning with systemd.
 
 - [x] DietPi/Raspberry Pi OS, Debian/Ubuntu, Fedora, and Arch installation paths are
   documented and tested.
-- [x] Switchboard runs as a dedicated unprivileged account by default.
-- [x] Docker and systemd control require deliberate, documented opt-in permissions.
+- [x] Docker and systemd control work immediately after native installation.
 - [x] Package upgrade preserves configuration and state.
 
 ## Phase 3 — Windows and macOS runtime support

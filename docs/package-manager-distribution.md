@@ -22,7 +22,10 @@ brew services start switchboard
 Use `brew update && brew upgrade switchboard` to upgrade. Stop and remove it with
 `brew services stop switchboard && brew uninstall switchboard`. The tap is
 published at <https://github.com/akash-kamat/homebrew-switchboard> and its formula
-is install-tested on macOS by a separate workflow.
+is install-tested on macOS by a separate workflow. Homebrew runs the service as
+the Homebrew user, which normally gives it access to that user's Docker Desktop.
+Use the macOS system installer instead when administrator-level launchd control
+is required.
 
 ## Scoop
 

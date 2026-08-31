@@ -47,27 +47,27 @@ See [docs/linux-installation.md](docs/linux-installation.md) for installation,
 upgrade, rollback, and removal steps.
 
 ```sh
-sudo groupadd --system switchboard 2>/dev/null || true
-sudo useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell /usr/sbin/nologin switchboard 2>/dev/null || true
 sudo install -m 0755 dist/switchboard-linux-arm64 /usr/bin/switchboard
-sudo install -d -o root -g switchboard -m 0750 /etc/switchboard
-sudo install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
-sudo install -o root -g switchboard -m 0660 config.example.yaml /etc/switchboard/config.yaml
+sudo install -d -o root -g root -m 0755 /etc/switchboard
+sudo install -d -o root -g root -m 0755 /var/lib/switchboard
+sudo install -o root -g root -m 0644 config.example.yaml /etc/switchboard/config.yaml
 sudo install -m 0644 deploy/switchboard.service /etc/systemd/system/switchboard.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now switchboard
 ```
 
-Open `http://dietpi-hostname:8080`. Check operation with:
+Open `http://dietpi-hostname:8080`. If 8080 was already occupied, read `listen`
+from `/etc/switchboard/config.yaml` for the automatically selected port. Check
+operation with:
 
 ```sh
 systemctl status switchboard
 journalctl -u switchboard -n 100 --no-pager
 ```
 
-The supplied service runs as the unprivileged `switchboard` account. Docker and
-systemd mutations require explicit additional permissions; they are not granted by
-the installer.
+The native Linux service runs as root so Docker and systemd controls work without
+post-install permission commands. This makes the dashboard an administrator-level
+interface; do not expose it to the Internet.
 
 Tagged releases provide `.deb`, `.rpm`, and `.pkg.tar.zst` packages for amd64,
 arm64, and ARMv7, plus portable archives. The native-package commands and manual

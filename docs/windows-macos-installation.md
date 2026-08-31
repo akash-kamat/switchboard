@@ -17,7 +17,8 @@ Get-Content .\install.ps1
 The installer verifies the release SHA-256 checksum, installs to
 `%ProgramFiles%\Switchboard`, stores persistent configuration in
 `%ProgramData%\Switchboard\config.yaml`, and registers an automatic Windows
-Service running as `LocalService`. Upgrades preserve the configuration.
+Service running as `LocalSystem`, allowing native service and Docker controls to
+work without separate ACL setup. Upgrades preserve the configuration.
 
 ```powershell
 Get-Service Switchboard
@@ -27,9 +28,7 @@ Get-Content "$env:ProgramData\Switchboard\config.yaml"
 ```
 
 Windows service entries use `type: native` and the Service Control Manager name
-in `unit`. Managing another service requires the Switchboard service identity to
-have the corresponding SCM permission. Docker Desktop is reached through
-`//./pipe/docker_engine`.
+in `unit`. Docker Desktop is reached through `//./pipe/docker_engine`.
 
 ## macOS
 

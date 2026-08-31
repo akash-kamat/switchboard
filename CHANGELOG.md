@@ -5,6 +5,12 @@ not yet released are recorded under `Unreleased`; tagged versions are immutable.
 
 ## Unreleased
 
+- Run native Linux installations as root and Windows installations as
+  LocalSystem so Docker and native-service controls work immediately.
+- Automatically select and persist a free port from 8081 through 8099 when the
+  default port 8080 is already occupied.
+- Correct the Linux one-line install path and clean up legacy binaries.
+
 ## 0.1.1 - 2026-08-31
 
 - Build releases with Go 1.25.13 or newer to include current standard-library

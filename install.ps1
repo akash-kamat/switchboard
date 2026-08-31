@@ -64,16 +64,20 @@ try {
     Copy-Item (Join-Path $temporary "switchboard.exe") $executable -Force
     $configPath = Join-Path $dataDirectory "config.yaml"
     if (-not (Test-Path -LiteralPath $configPath)) { Copy-Item (Join-Path $temporary "config.example.yaml") $configPath }
-    & icacls.exe $dataDirectory /inheritance:r /grant:r "Administrators:(OI)(CI)F" "LOCAL SERVICE:(OI)(CI)M" | Out-Null
+    & icacls.exe $dataDirectory /inheritance:r /grant:r "Administrators:(OI)(CI)F" "SYSTEM:(OI)(CI)F" | Out-Null
     & sc.exe query Switchboard *> $null
     if ($LASTEXITCODE -eq 0) {
-        & sc.exe config Switchboard binPath= ('"' + $executable + '" service --config "' + $configPath + '"') start= auto obj= "NT AUTHORITY\LocalService" | Out-Null
+        & sc.exe config Switchboard binPath= ('"' + $executable + '" service --config "' + $configPath + '"') start= auto obj= LocalSystem | Out-Null
     } else {
-        & sc.exe create Switchboard binPath= ('"' + $executable + '" service --config "' + $configPath + '"') start= auto obj= "NT AUTHORITY\LocalService" DisplayName= "Switchboard" | Out-Null
+        & sc.exe create Switchboard binPath= ('"' + $executable + '" service --config "' + $configPath + '"') start= auto obj= LocalSystem DisplayName= "Switchboard" | Out-Null
         & sc.exe description Switchboard "Lightweight service and container dashboard" | Out-Null
     }
     Start-Service Switchboard
+    Start-Sleep -Seconds 1
     Write-Host "Switchboard installed. Configuration was preserved if it already existed."
+    $listenLine = Get-Content -LiteralPath $configPath | Where-Object { $_ -match '^\s*listen\s*:' } | Select-Object -First 1
+    $listenAddress = if ($listenLine) { (($listenLine -split ':', 2)[1]).Trim().Trim('"', "'") } else { ':8080' }
+    Write-Host "Listen address: $listenAddress (see $configPath if the default port was occupied)."
 } finally {
     if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

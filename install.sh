@@ -68,11 +68,11 @@ if [ "$os" = linux ]; then
   systemctl stop switchboard 2>/dev/null || true
   rm -f /usr/local/bin/switchboard
   install -m 0755 "$tmp/switchboard" /usr/bin/switchboard
-  getent group switchboard >/dev/null 2>&1 || groupadd --system switchboard
-  id switchboard >/dev/null 2>&1 || useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell "$(command -v nologin || echo /usr/sbin/nologin)" switchboard
-  install -d -o root -g switchboard -m 0750 /etc/switchboard
-  install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
-  if [ ! -e /etc/switchboard/config.yaml ]; then install -o root -g switchboard -m 0660 "$tmp/config.example.yaml" /etc/switchboard/config.yaml; fi
+  install -d -o root -g root -m 0755 /etc/switchboard
+  install -d -o root -g root -m 0755 /var/lib/switchboard
+  if [ ! -e /etc/switchboard/config.yaml ]; then install -o root -g root -m 0644 "$tmp/config.example.yaml" /etc/switchboard/config.yaml; fi
+  chown root:root /etc/switchboard/config.yaml /var/lib/switchboard
+  chmod 0644 /etc/switchboard/config.yaml
   curl --fail --silent --show-error --location "https://raw.githubusercontent.com/$repository/main/deploy/switchboard.service" --output /etc/systemd/system/switchboard.service
   systemctl daemon-reload
   systemctl enable --now switchboard
@@ -85,4 +85,8 @@ else
   launchctl bootout system/com.akash-kamat.switchboard 2>/dev/null || true
   launchctl bootstrap system /Library/LaunchDaemons/com.akash-kamat.switchboard.plist
 fi
+sleep 1
+if [ "$os" = linux ]; then config_path=/etc/switchboard/config.yaml; else config_path="/Library/Application Support/Switchboard/config.yaml"; fi
+listen_address=$(awk '/^[[:space:]]*listen:/ {sub(/^[^:]*:[[:space:]]*/, ""); gsub(/"/, ""); print; exit}' "$config_path")
 echo "Switchboard installed. Configuration was preserved if it already existed."
+echo "Listen address: ${listen_address:-:8080} (see $config_path if the default port was occupied)."

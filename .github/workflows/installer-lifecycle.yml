@@ -30,6 +30,7 @@ jobs:
           test "$(sudo sha256sum "$config" | awk '{print $1}')" = "$before"
           test -x /usr/bin/switchboard
           test ! -e /usr/local/bin/switchboard
+          test "$(systemctl show switchboard --property=User --value)" = root
           sudo systemctl is-active --quiet switchboard
           attempts=0
           until curl --fail --silent http://127.0.0.1:8080/api/system >/dev/null; do
@@ -57,6 +58,7 @@ jobs:
           .\install.ps1 -Version $tag
           if ((Get-FileHash $config).Hash -ne $before) { throw "Upgrade replaced configuration" }
           if ((Get-Service Switchboard).Status -ne "Running") { throw "Service is not running" }
+          if ((Get-CimInstance Win32_Service -Filter "Name='Switchboard'").StartName -ne "LocalSystem") { throw "Service is not running as LocalSystem" }
           Invoke-RestMethod http://127.0.0.1:8080/api/system | Out-Null
           .\install.ps1 -Uninstall
           if (-not (Test-Path $config)) { throw "Uninstall removed configuration" }

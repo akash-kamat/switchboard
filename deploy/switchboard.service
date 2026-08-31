@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=switchboard
-Group=switchboard
+User=root
+Group=root
 ExecStart=/usr/bin/switchboard serve --config /etc/switchboard/config.yaml
 Restart=on-failure
 RestartSec=3

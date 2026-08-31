@@ -2,8 +2,12 @@ package main
 
 import (
 	"bytes"
+	"net"
+	"os"
 	"strings"
 	"testing"
+
+	"github.com/akash-kamat/switchboard/internal/config"
 )
 
 func TestVersionCommand(t *testing.T) {
@@ -15,6 +19,42 @@ func TestVersionCommand(t *testing.T) {
 		if !strings.Contains(stdout.String(), want) {
 			t.Errorf("version output %q does not contain %q", stdout.String(), want)
 		}
+	}
+}
+
+func TestDefaultPortFallsBackAndPersists(t *testing.T) {
+	blocker, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "in use") {
+			// Something outside the test already provides the collision we need.
+			blocker = nil
+		} else {
+			t.Fatal(err)
+		}
+	}
+	if blocker != nil {
+		defer blocker.Close()
+	}
+
+	path := writeTestConfig(t, "version: 1\nlisten: ':8080'\nservices: []\n")
+	cfg, err := config.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listener, err := listenWithDefaultFallback(&cfg, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listener.Close()
+	if cfg.Listen == ":8080" {
+		t.Fatal("expected a fallback port")
+	}
+	saved, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(saved), "listen: :808") {
+		t.Fatalf("fallback address was not saved: %s", saved)
 	}
 }
 

@@ -1,7 +1,8 @@
 # Configuration schema. Future releases will migrate older supported versions.
 version: 1
 
-# Bind to the LAN. Use 127.0.0.1:8080 when placing Switchboard behind a proxy.
+# Bind to the LAN. If default port 8080 is busy, Switchboard selects and saves
+# the first free port from 8081 through 8099. Custom ports fail on collision.
 listen: ":8080"
 
 # These settings are also editable from the Settings page.
@@ -22,33 +23,6 @@ dashboard:
     - uptime
     - kernel
 
-services:
-  - name: Transmission
-    # Optional: auto, a bundled icon name, or an http/https image URL.
-    icon: auto
-    type: systemd
-    unit: transmission-daemon.service
-    href: http://192.168.1.102:9091/
-    description: Torrent client
-    group: Media
-
-  - name: Jellyfin
-    type: docker
-    container: jellyfin
-    href: http://192.168.1.102:8096/
-    description: Movies, shows and music
-    group: Media
-
-  - name: Dockge
-    type: docker
-    container: dockge-dockge-1
-    href: http://192.168.1.102:5001/
-    description: Compose stack manager
-    group: Dashboards
-
-  - name: n8n
-    type: docker
-    container: n8n
-    href: http://192.168.1.102:5678/
-    description: Workflow automation
-    group: Automation
+# Start clean. Add the services and containers that actually exist on this host
+# from the dashboard or by editing this file.
+services: []

@@ -6,9 +6,10 @@ This checklist is required before declaring v1.0 stable.
 - [x] Service and container identifiers reject shell syntax and unsafe characters.
 - [x] Child processes receive separate arguments; no user value is evaluated by a shell.
 - [x] Cross-origin mutating API calls are rejected and browser security headers are set.
-- [x] Linux packages run as an unprivileged dedicated identity with systemd hardening.
-- [x] Windows uses `LocalService`; macOS uses a controlled system LaunchDaemon.
-- [x] Docker access is opt-in and documented as root-equivalent.
+- [x] Linux uses root with compatible systemd hardening; Windows uses
+  `LocalSystem`; macOS uses a system LaunchDaemon.
+- [x] Administrator-level Docker and native-service access is enabled by native
+  installers and clearly documented.
 - [x] Release checksums, keyless signatures, and an SBOM are generated automatically.
 - [x] Dependency and CodeQL scans run on a schedule and relevant pull requests.
 - [ ] Independent review of authentication/network exposure before a v1.0 release.

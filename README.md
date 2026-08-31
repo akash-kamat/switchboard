@@ -14,7 +14,11 @@ A lightweight, single-page dashboard for viewing and controlling Docker containe
 ## Repository layout
 
 ```text
-cmd/switchboard/       Go application and embedded web assets
+cmd/switchboard/       CLI entry point
+internal/config/       configuration parsing, validation, and atomic saving
+internal/docker/       Docker Engine adapter
+internal/platform/     host capability contracts
+internal/server/       HTTP API and embedded web assets
 deploy/                systemd unit
 dist/                  local build output (not committed)
 config.example.yaml    documented starter configuration
@@ -84,7 +88,7 @@ Current platform and toolchain requirements are in [docs/support.md](docs/suppor
 ```sh
 go test ./...
 go vet ./...
-node --check cmd/switchboard/web/app.js
+node --check internal/server/web/app.js
 ```
 
 Run locally with `go run ./cmd/switchboard -config config.example.yaml`. Live system metrics and service integrations require Linux.

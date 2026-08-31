@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/json"
@@ -6,10 +6,25 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/akash-kamat/switchboard/internal/config"
 )
+
+func writeTestConfig(t *testing.T, contents string) string {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte(contents), 0600); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
+func defaultConfig() Config                  { return config.Default() }
+func loadConfig(path string) (Config, error) { return config.Load(path) }
 
 type fakeBackend struct {
 	mu      sync.Mutex

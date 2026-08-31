@@ -22,7 +22,7 @@ jobs:
           node-version: 22
       - run: go test ./...
       - run: go vet ./...
-      - run: node --check cmd/switchboard/web/app.js
+      - run: node --check internal/server/web/app.js
 
   build:
     runs-on: ubuntu-latest

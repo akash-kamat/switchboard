@@ -70,7 +70,7 @@ Reorganize the code without changing the user-facing dashboard.
 - [x] Move executable startup code to `cmd/switchboard`.
 - [x] Move configuration loading, validation, and atomic saving to
   `internal/config`.
-- [ ] Move HTTP routes and embedded frontend handling to `internal/server`.
+- [x] Move HTTP routes and embedded frontend handling to `internal/server`.
 - [x] Move Docker integration to `internal/docker`.
 - [x] Introduce `internal/platform` interfaces for metrics and native services.
 - [ ] Place Linux implementations behind Linux build constraints.

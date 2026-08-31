@@ -14,6 +14,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/akash-kamat/switchboard/internal/server"
 )
 
 var (
@@ -97,10 +99,9 @@ func serve(ctx context.Context, configPath string) error {
 	if err != nil {
 		return err
 	}
-	application := newApp(cfg, newDockerBackend("/var/run/docker.sock"), newSystemdBackend(), newSystemMetrics("/"), configPath)
 	srv := &http.Server{
 		Addr:              cfg.Listen,
-		Handler:           application.routes(),
+		Handler:           server.New(cfg, newDockerBackend("/var/run/docker.sock"), newSystemdBackend(), newSystemMetrics("/"), configPath),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      20 * time.Second,

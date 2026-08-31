@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"embed"
@@ -10,7 +10,22 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+
+	"github.com/akash-kamat/switchboard/internal/config"
+	"github.com/akash-kamat/switchboard/internal/platform"
 )
+
+type Config = config.Config
+type Service = config.Service
+type ServiceState = platform.ServiceState
+type SystemStats = platform.SystemStats
+type serviceBackend = platform.ServiceBackend
+type systemCollector = platform.SystemCollector
+
+var marshalConfig = config.Marshal
+var parseConfig = config.Parse
+var validateConfig = config.Validate
+var saveConfig = config.Save
 
 //go:embed web/*
 var webFiles embed.FS
@@ -33,6 +48,11 @@ func newApp(cfg Config, docker, systemd serviceBackend, system systemCollector, 
 	a := &app{config: cfg, configPath: path, docker: docker, systemd: systemd, system: system}
 	a.reindex()
 	return a
+}
+
+// New constructs the complete HTTP handler, including the embedded dashboard.
+func New(cfg config.Config, dockerBackend, nativeBackend platform.ServiceBackend, system platform.SystemCollector, configPath string) http.Handler {
+	return newApp(cfg, dockerBackend, nativeBackend, system, configPath).routes()
 }
 
 func (a *app) reindex() {

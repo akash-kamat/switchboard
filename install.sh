@@ -66,6 +66,7 @@ tar -xzf "$tmp/$archive" -C "$tmp"
 
 if [ "$os" = linux ]; then
   systemctl stop switchboard 2>/dev/null || true
+  rm -f /usr/local/bin/switchboard
   install -m 0755 "$tmp/switchboard" /usr/bin/switchboard
   getent group switchboard >/dev/null 2>&1 || groupadd --system switchboard
   id switchboard >/dev/null 2>&1 || useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell "$(command -v nologin || echo /usr/sbin/nologin)" switchboard

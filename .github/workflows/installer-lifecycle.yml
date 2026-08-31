@@ -21,6 +21,7 @@ jobs:
         run: |
           set -eu
           tag="${{ inputs.tag || github.event.release.tag_name }}"
+          sudo install -m 0755 /bin/true /usr/local/bin/switchboard
           sudo sh install.sh --version "$tag"
           config=/etc/switchboard/config.yaml
           printf '\n# lifecycle-test\n' | sudo tee -a "$config" >/dev/null
@@ -28,6 +29,7 @@ jobs:
           sudo sh install.sh --version "$tag"
           test "$(sudo sha256sum "$config" | awk '{print $1}')" = "$before"
           test -x /usr/bin/switchboard
+          test ! -e /usr/local/bin/switchboard
           sudo systemctl is-active --quiet switchboard
           attempts=0
           until curl --fail --silent http://127.0.0.1:8080/api/system >/dev/null; do

@@ -16,7 +16,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Install, upgrade, and uninstall
         shell: pwsh
         run: |
@@ -35,7 +35,7 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Install, upgrade, and uninstall
         run: |
           set -eu

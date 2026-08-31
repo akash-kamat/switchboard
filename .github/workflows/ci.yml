@@ -112,8 +112,8 @@ jobs:
 
           sudo dpkg --remove switchboard
           test ! -e /usr/bin/switchboard
-          test -f /etc/switchboard/config.yaml
-          test -d /var/lib/switchboard
+          sudo test -f /etc/switchboard/config.yaml
+          sudo test -d /var/lib/switchboard
 
           sudo dpkg -i "$deb"
           test -x /usr/bin/switchboard

@@ -38,6 +38,6 @@ class Switchboard < Formula
   end
 
   test do
-    assert_match version.to_s, shell_output("#<built-in function bin>/switchboard version")
+    assert_match version.to_s, shell_output("#{bin}/switchboard version")
   end
 end

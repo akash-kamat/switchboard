@@ -91,7 +91,7 @@ def main() -> None:
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/switchboard version")
+    assert_match version.to_s, shell_output("#{{bin}}/switchboard version")
   end
 end'''
     write(args.output / "homebrew" / "Formula" / "switchboard.rb", formula)

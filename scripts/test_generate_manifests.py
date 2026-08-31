@@ -27,7 +27,9 @@ class ManifestGeneratorTest(unittest.TestCase):
                 check=True,
             )
             files = list(output.rglob("*"))
-            self.assertTrue(any(path.name == "switchboard.rb" for path in files))
+            formula = output / "homebrew" / "Formula" / "switchboard.rb"
+            self.assertTrue(formula.is_file())
+            self.assertIn('shell_output("#{bin}/switchboard version")', formula.read_text(encoding="utf-8"))
             self.assertTrue(any(path.name == "switchboard.json" for path in files))
             self.assertTrue(any(path.name == "PKGBUILD" for path in files))
             for path in files:

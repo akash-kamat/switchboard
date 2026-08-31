@@ -73,8 +73,8 @@ Reorganize the code without changing the user-facing dashboard.
 - [x] Move HTTP routes and embedded frontend handling to `internal/server`.
 - [x] Move Docker integration to `internal/docker`.
 - [x] Introduce `internal/platform` interfaces for metrics and native services.
-- [ ] Place Linux implementations behind Linux build constraints.
-- [ ] Add compilable Windows and macOS platform implementations or explicit
+- [x] Place Linux implementations behind Linux build constraints.
+- [x] Add compilable Windows and macOS platform implementations or explicit
   unsupported-capability responses.
 - [x] Keep frontend assets embedded in the executable.
 

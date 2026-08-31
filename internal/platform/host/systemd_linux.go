@@ -1,4 +1,6 @@
-package main
+//go:build linux
+
+package host
 
 import (
 	"context"
@@ -9,11 +11,20 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/akash-kamat/switchboard/internal/config"
+	"github.com/akash-kamat/switchboard/internal/platform"
 )
+
+type Service = config.Service
+type ServiceState = platform.ServiceState
 
 type systemdBackend struct{}
 
 func newSystemdBackend() *systemdBackend { return &systemdBackend{} }
+
+// NewNativeBackend returns the systemd service adapter on Linux.
+func NewNativeBackend() platform.ServiceBackend { return newSystemdBackend() }
 
 func systemctl(args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)

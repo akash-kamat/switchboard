@@ -1,6 +1,6 @@
 //go:build linux
 
-package main
+package host
 
 import (
 	"fmt"
@@ -12,7 +12,11 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/akash-kamat/switchboard/internal/platform"
 )
+
+type SystemStats = platform.SystemStats
 
 type systemMetrics struct {
 	diskPath string
@@ -25,6 +29,9 @@ func newSystemMetrics(path string) *systemMetrics {
 	total, idle, _ := readCPUStat()
 	return &systemMetrics{diskPath: path, cpuTotal: total, cpuIdle: idle}
 }
+
+// NewSystemCollector returns the native Linux metrics collector.
+func NewSystemCollector(path string) platform.SystemCollector { return newSystemMetrics(path) }
 
 func readCPUStat() (total uint64, idle uint64, err error) {
 	b, err := os.ReadFile("/proc/stat")

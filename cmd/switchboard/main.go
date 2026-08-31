@@ -15,6 +15,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/akash-kamat/switchboard/internal/config"
+	"github.com/akash-kamat/switchboard/internal/docker"
+	"github.com/akash-kamat/switchboard/internal/paths"
+	"github.com/akash-kamat/switchboard/internal/platform/host"
 	"github.com/akash-kamat/switchboard/internal/server"
 )
 
@@ -48,7 +52,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "usage: switchboard validate-config <path>")
 			return 2
 		}
-		if _, err := loadConfig(args[1]); err != nil {
+		if _, err := config.Load(args[1]); err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
@@ -76,7 +80,9 @@ For compatibility, "switchboard -config path" is the same as "switchboard serve 
 func runServeCommand(args []string, stderr io.Writer) int {
 	flags := flag.NewFlagSet("serve", flag.ContinueOnError)
 	flags.SetOutput(stderr)
-	configPath := flags.String("config", "config.yaml", "path to YAML configuration")
+	configPath := flags.String("config", paths.DefaultConfig(), "path to YAML configuration")
+	dockerSocket := flags.String("docker-socket", paths.DefaultDockerSocket(), "path to the Docker Engine socket")
+	diskPath := flags.String("disk-path", paths.DefaultDiskPath(), "filesystem path used for storage metrics")
 	if err := flags.Parse(args); err != nil {
 		return 2
 	}
@@ -87,21 +93,21 @@ func runServeCommand(args []string, stderr io.Writer) int {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := serve(ctx, *configPath); err != nil {
+	if err := serve(ctx, *configPath, *dockerSocket, *diskPath); err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
 	return 0
 }
 
-func serve(ctx context.Context, configPath string) error {
-	cfg, err := loadConfig(configPath)
+func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error {
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		return err
 	}
 	srv := &http.Server{
 		Addr:              cfg.Listen,
-		Handler:           server.New(cfg, newDockerBackend("/var/run/docker.sock"), newSystemdBackend(), newSystemMetrics("/"), configPath),
+		Handler:           server.New(cfg, docker.New(dockerSocket), host.NewNativeBackend(), host.NewSystemCollector(diskPath), configPath),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      20 * time.Second,

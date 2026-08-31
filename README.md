@@ -96,9 +96,14 @@ Run locally with `go run ./cmd/switchboard -config config.example.yaml`. Live sy
 The explicit CLI form is:
 
 ```sh
-switchboard serve -config config.example.yaml
+switchboard serve --config config.example.yaml
 switchboard validate-config config.example.yaml
 switchboard version
 ```
 
 The original `switchboard -config ...` invocation remains supported.
+
+Packaged installs default to `/etc/switchboard/config.yaml` on Linux,
+`%ProgramData%\Switchboard\config.yaml` on Windows, and
+`/Library/Application Support/Switchboard/config.yaml` on macOS. Override runtime
+integration paths with `--docker-socket` and `--disk-path` when needed.

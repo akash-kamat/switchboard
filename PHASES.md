@@ -92,7 +92,7 @@ Reorganize the code without changing the user-facing dashboard.
 - [x] Add version, commit, build date, OS, and architecture build information.
 - [x] Handle SIGINT/SIGTERM and shut down the HTTP server cleanly.
 - [x] Apply sensible HTTP read, write, idle, and header timeouts.
-- [ ] Make all writable paths configurable and platform appropriate.
+- [x] Make all writable paths configurable and platform appropriate.
 - [x] Ensure configuration writes remain validated and atomic.
 - [ ] Keep idle CPU and memory use appropriate for small Raspberry Pi systems.
 - [x] Run `go test ./...`, `go vet ./...`, and frontend syntax checks in CI.

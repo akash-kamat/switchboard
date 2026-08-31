@@ -54,6 +54,8 @@ archives:
       - switchboard-portable
     formats:
       - tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
         formats:
@@ -128,4 +130,4 @@ changelog:
       - '^test:'
 
 release:
-  draft: true
+  draft: false

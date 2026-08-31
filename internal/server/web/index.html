@@ -25,7 +25,7 @@
         <nav aria-label="Dashboard sections">
           <button class="nav-item active" type="button" data-view="overview"><svg aria-hidden="true"><use href="/icons.svg#home"></use></svg> Overview</button>
           <button class="nav-item" type="button" data-view="overview" data-filter="docker"><svg aria-hidden="true"><use href="/icons.svg#container"></use></svg> Containers</button>
-          <button class="nav-item" type="button" data-view="overview" data-filter="systemd"><svg aria-hidden="true"><use href="/icons.svg#server"></use></svg> Services</button>
+          <button class="nav-item" type="button" data-view="overview" data-filter="native"><svg aria-hidden="true"><use href="/icons.svg#server"></use></svg> Services</button>
           <button class="nav-item" type="button" data-view="overview" data-filter="all"><svg aria-hidden="true"><use href="/icons.svg#grid"></use></svg> All</button>
           <button class="nav-item" type="button" data-view="settings"><svg aria-hidden="true"><use href="/icons.svg#settings"></use></svg> Settings</button>
         </nav>
@@ -99,7 +99,7 @@
       <input id="service-index" type="hidden">
       <div class="dialog-grid">
         <label>Name <input id="service-name" required></label>
-        <label>Type <select id="service-type"><option value="docker">Docker container</option><option value="systemd">systemd service</option></select></label>
+        <label>Type <select id="service-type"><option value="docker">Docker container</option><option value="native">Native service</option><option value="systemd">systemd service (legacy)</option></select></label>
         <label>Icon <input id="service-icon" list="service-icons" placeholder="auto"></label>
         <datalist id="service-icons">
           <option value="auto"><option value="jellyfin"><option value="transmission"><option value="dockge"><option value="n8n">

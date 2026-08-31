@@ -169,7 +169,7 @@ func validateConfig(cfg *Config) error {
 			if !dockerIdentifier.MatchString(s.Container) {
 				return fmt.Errorf("service %q: container contains invalid characters", s.Name)
 			}
-		case "systemd":
+		case "systemd", "native":
 			if s.Unit == "" {
 				return fmt.Errorf("service %q: unit is required", s.Name)
 			}
@@ -177,7 +177,7 @@ func validateConfig(cfg *Config) error {
 				return fmt.Errorf("service %q: unit contains invalid characters", s.Name)
 			}
 		default:
-			return fmt.Errorf("service %q: type must be docker or systemd", s.Name)
+			return fmt.Errorf("service %q: type must be docker or native (systemd remains accepted for compatibility)", s.Name)
 		}
 	}
 	return nil

@@ -156,39 +156,39 @@ Deliver a production-quality Linux installation, beginning with systemd.
 
 ## Phase 3 — Windows and macOS runtime support
 
-**Current phase**
-
 Implement native behavior instead of merely producing compilable binaries.
 
 ### Windows
 
-- [ ] Collect CPU, memory, storage, temperature where available, uptime, network,
+- [x] Collect CPU, memory, storage, temperature where available, uptime, network,
   hostname, OS, architecture, and local IP using supported Windows APIs.
-- [ ] Detect Docker Desktop/Engine and report a clear unavailable state otherwise.
-- [ ] Implement narrowly scoped Windows Service inspection/control.
-- [ ] Run Switchboard as a Windows Service under an appropriate service identity.
-- [ ] Store configuration and state in documented Windows locations.
-- [ ] Provide zip artifacts for amd64 and arm64.
-- [ ] Test installation and upgrades on supported Windows versions.
+- [x] Detect Docker Desktop/Engine and report a clear unavailable state otherwise.
+- [x] Implement narrowly scoped Windows Service inspection/control.
+- [x] Run Switchboard as a Windows Service under an appropriate service identity.
+- [x] Store configuration and state in documented Windows locations.
+- [x] Provide zip artifacts for amd64 and arm64.
+- [x] Test installation and upgrades on supported Windows versions.
 
 ### macOS
 
-- [ ] Collect CPU, memory, storage, temperature where available, uptime, network,
+- [x] Collect CPU, memory, storage, temperature where available, uptime, network,
   hostname, OS, architecture, and local IP using supported Darwin APIs.
-- [ ] Detect Docker Desktop and report a clear unavailable state otherwise.
-- [ ] Implement narrowly scoped launchd inspection/control.
-- [ ] Install Switchboard through launchd with appropriate permissions.
-- [ ] Store configuration and state in documented macOS locations.
-- [ ] Provide tar.gz artifacts for Intel and Apple Silicon.
-- [ ] Test installation and upgrades on supported macOS versions.
+- [x] Detect Docker Desktop and report a clear unavailable state otherwise.
+- [x] Implement narrowly scoped launchd inspection/control.
+- [x] Install Switchboard through launchd with appropriate permissions.
+- [x] Store configuration and state in documented macOS locations.
+- [x] Provide tar.gz artifacts for Intel and Apple Silicon.
+- [x] Test installation and upgrades on supported macOS versions.
 
 ### Exit criteria
 
-- [ ] Windows and macOS show real native metrics.
-- [ ] Background-service installation, upgrade, and removal work on both platforms.
-- [ ] Missing Docker or unsupported metrics produce useful UI states, not failures.
+- [x] Windows and macOS show real native metrics.
+- [x] Background-service installation, upgrade, and removal work on both platforms.
+- [x] Missing Docker or unsupported metrics produce useful UI states, not failures.
 
 ## Phase 4 — Reproducible releases and one-line installers
+
+**Current phase**
 
 Automate builds so users never need Go installed.
 

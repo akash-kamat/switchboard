@@ -94,3 +94,13 @@ func TestSaveConfigIsAtomicAndReloadable(t *testing.T) {
 		t.Fatalf("saved config = %#v", loaded)
 	}
 }
+
+func TestParseAcceptsPortableNativeService(t *testing.T) {
+	cfg, err := parseConfig([]byte("version: 1\nservices:\n  - name: Web\n    type: native\n    unit: example.service\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Services) != 1 || cfg.Services[0].Type != "native" {
+		t.Fatalf("unexpected services: %#v", cfg.Services)
+	}
+}

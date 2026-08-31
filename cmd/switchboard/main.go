@@ -59,6 +59,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		fmt.Fprintf(stdout, "%s is valid\n", args[1])
 		return 0
+	case "service":
+		return runServiceCommand(args[1:], stderr)
 	case "help", "-h", "--help":
 		printUsage(stdout)
 		return 0
@@ -78,23 +80,37 @@ func printUsage(w io.Writer) {
 For compatibility, "switchboard -config path" is the same as "switchboard serve -config path".`)
 }
 
-func runServeCommand(args []string, stderr io.Writer) int {
+type serveOptions struct {
+	configPath   string
+	dockerSocket string
+	diskPath     string
+}
+
+func parseServeOptions(args []string, stderr io.Writer) (serveOptions, int) {
 	flags := flag.NewFlagSet("serve", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	configPath := flags.String("config", paths.DefaultConfig(), "path to YAML configuration")
 	dockerSocket := flags.String("docker-socket", paths.DefaultDockerSocket(), "path to the Docker Engine socket")
 	diskPath := flags.String("disk-path", paths.DefaultDiskPath(), "filesystem path used for storage metrics")
 	if err := flags.Parse(args); err != nil {
-		return 2
+		return serveOptions{}, 2
 	}
 	if flags.NArg() != 0 {
 		fmt.Fprintln(stderr, "serve does not accept positional arguments")
-		return 2
+		return serveOptions{}, 2
+	}
+	return serveOptions{configPath: *configPath, dockerSocket: *dockerSocket, diskPath: *diskPath}, 0
+}
+
+func runServeCommand(args []string, stderr io.Writer) int {
+	options, exitCode := parseServeOptions(args, stderr)
+	if exitCode != 0 {
+		return exitCode
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := serve(ctx, *configPath, *dockerSocket, *diskPath); err != nil {
+	if err := serve(ctx, options.configPath, options.dockerSocket, options.diskPath); err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}

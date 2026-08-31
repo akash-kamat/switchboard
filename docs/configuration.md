@@ -27,8 +27,10 @@ Future schema changes follow these rules:
 `cpu`, `memory`, `storage`, `temperature`, `load`, and `swap`. `system_details`
 accepts `hostname`, `local_ip`, `os`, `uptime`, `kernel`, and `architecture`.
 
-Each service requires a unique `name` and a `type` of `docker` or `systemd`.
-Docker entries require `container`; systemd entries require `unit`. Optional
+Each service requires a unique `name` and a `type` of `docker` or `native`.
+The older `systemd` type remains accepted for compatibility. Docker entries
+require `container`; native entries require `unit` (a systemd unit, Windows
+Service name, or launchd label). Optional
 fields are `icon`, `href`, `description`, `group`, and `autostart`.
 
 Unknown fields, duplicate service names, unsafe URLs, invalid choices, and missing

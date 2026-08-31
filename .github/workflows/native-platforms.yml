@@ -1,0 +1,82 @@
+name: Native platform integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "cmd/switchboard/**"
+      - "internal/platform/host/**"
+      - "internal/docker/**"
+      - "internal/paths/**"
+      - "deploy/com.akash-kamat.switchboard.plist"
+      - "install.ps1"
+      - "install.sh"
+      - ".github/workflows/native-platforms.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - name: Build and query native metrics
+        shell: pwsh
+        run: |
+          go build -o switchboard.exe ./cmd/switchboard
+          $config = Join-Path $env:RUNNER_TEMP "switchboard-config.yaml"
+          @"
+          version: 1
+          listen: 127.0.0.1:18080
+          services: []
+          "@ | Set-Content $config
+          $process = Start-Process -FilePath .\switchboard.exe -ArgumentList @("serve", "--config", $config) -PassThru -WindowStyle Hidden
+          try {
+            for ($i = 0; $i -lt 30; $i++) {
+              try { $stats = Invoke-RestMethod http://127.0.0.1:18080/api/system; break } catch { Start-Sleep -Milliseconds 250 }
+            }
+            if (-not $stats.hostname -or $stats.memoryTotalBytes -le 0 -or $stats.diskTotalBytes -le 0) { throw "Native Windows metrics smoke test failed" }
+          } finally {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+          }
+      - name: Parse Windows installer
+        shell: pwsh
+        run: |
+          $tokens = $null; $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile("$PWD/install.ps1", [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { $errors | Format-List; exit 1 }
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - name: Build and query native metrics
+        run: |
+          set -eu
+          go build -o switchboard ./cmd/switchboard
+          config="$RUNNER_TEMP/switchboard-config.yaml"
+          printf 'version: 1\nlisten: 127.0.0.1:18080\nservices: []\n' >"$config"
+          ./switchboard serve --config "$config" >"$RUNNER_TEMP/switchboard.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          i=0
+          until curl --fail --silent http://127.0.0.1:18080/api/system >"$RUNNER_TEMP/stats.json"; do
+            i=$((i + 1)); [ "$i" -lt 30 ] || { cat "$RUNNER_TEMP/switchboard.log"; exit 1; }
+            sleep 0.25
+          done
+          python3 -c 'import json,os; s=json.load(open(os.environ["RUNNER_TEMP"]+"/stats.json")); assert s["hostname"] and s["memoryTotalBytes"] > 0 and s["diskTotalBytes"] > 0'
+      - name: Validate launchd definition and installer
+        run: |
+          plutil -lint deploy/com.akash-kamat.switchboard.plist
+          sh -n install.sh

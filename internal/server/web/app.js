@@ -133,7 +133,7 @@ function serviceCard(service) {
 
 function renderServices(services) {
   allServices = services;
-  const visible = activeFilter === 'all' ? services : services.filter(service => service.type === activeFilter);
+  const visible = activeFilter === 'all' ? services : services.filter(service => activeFilter === 'native' ? service.type !== 'docker' : service.type === activeFilter);
   const groups = new Map();
   visible.forEach(service => {
     if (!groups.has(service.group)) groups.set(service.group, []);
@@ -206,7 +206,7 @@ function openServiceDialog(index = -1) {
 
 function updateTargetLabel() {
   const docker = $('#service-type').value === 'docker';
-  $('#target-label').firstChild.textContent = docker ? 'Container name ' : 'systemd unit ';
+  $('#target-label').firstChild.textContent = docker ? 'Container name ' : 'Native service name ';
 }
 
 async function validateYAML() {

@@ -2,15 +2,12 @@ package docker
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/akash-kamat/switchboard/internal/config"
 	"github.com/akash-kamat/switchboard/internal/platform"
@@ -21,16 +18,6 @@ type ServiceState = platform.ServiceState
 
 type dockerBackend struct {
 	client *http.Client
-}
-
-func newDockerBackend(socket string) *dockerBackend {
-	transport := &http.Transport{
-		DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
-			return (&net.Dialer{Timeout: 3 * time.Second}).DialContext(ctx, "unix", socket)
-		},
-		DisableCompression: true,
-	}
-	return &dockerBackend{client: &http.Client{Transport: transport, Timeout: 8 * time.Second}}
 }
 
 // New returns a Docker Engine backend using the provided Unix socket.

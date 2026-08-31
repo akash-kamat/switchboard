@@ -1,6 +1,6 @@
 # Switchboard
 
-A lightweight, single-page dashboard for viewing and controlling Docker containers and systemd services on DietPi. The backend and embedded frontend ship as one Go executable; there is no Node.js runtime, bundler, or frontend build step.
+A lightweight, single-page dashboard for viewing and controlling Docker containers and native services on Linux, Windows, and macOS. The backend and embedded frontend ship as one Go executable; there is no Node.js runtime, bundler, or frontend build step.
 
 ## Features
 
@@ -93,6 +93,8 @@ Docker actions use `/var/run/docker.sock` directly. Systemd actions use `systemc
 The current routes and response contracts are documented in [docs/api.md](docs/api.md).
 
 Current platform and toolchain requirements are in [docs/support.md](docs/support.md).
+Windows and macOS installation is documented in
+[docs/windows-macos-installation.md](docs/windows-macos-installation.md).
 The lightweight runtime budget and measurement commands are in
 [docs/performance.md](docs/performance.md).
 Read [docs/security.md](docs/security.md) before enabling Docker access or exposing

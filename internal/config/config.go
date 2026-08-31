@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"bytes"
@@ -23,6 +23,9 @@ var allowedSystemDetails = map[string]bool{
 }
 
 const currentConfigVersion = 1
+
+// CurrentVersion is the newest configuration schema understood by this build.
+const CurrentVersion = currentConfigVersion
 
 type Config struct {
 	Version   int             `yaml:"version" json:"version"`
@@ -234,3 +237,21 @@ func saveConfig(path string, cfg Config) ([]byte, error) {
 	}
 	return b, nil
 }
+
+// Default returns a configuration populated with safe application defaults.
+func Default() Config { return defaultConfig() }
+
+// Load reads, parses, defaults, and validates a configuration file.
+func Load(path string) (Config, error) { return loadConfig(path) }
+
+// Parse parses, defaults, and validates YAML configuration data.
+func Parse(data []byte) (Config, error) { return parseConfig(data) }
+
+// Validate normalizes and validates a configuration value in place.
+func Validate(cfg *Config) error { return validateConfig(cfg) }
+
+// Marshal validates and returns normalized YAML configuration data.
+func Marshal(cfg Config) ([]byte, error) { return marshalConfig(cfg) }
+
+// Save validates and atomically replaces the configuration file.
+func Save(path string, cfg Config) ([]byte, error) { return saveConfig(path, cfg) }

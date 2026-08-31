@@ -1,4 +1,4 @@
-module switchboard
+module github.com/akash-kamat/switchboard
 
 go 1.23
 

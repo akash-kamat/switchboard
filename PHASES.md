@@ -68,7 +68,7 @@ Reorganize the code without changing the user-facing dashboard.
 ### Project structure
 
 - [x] Move executable startup code to `cmd/switchboard`.
-- [ ] Move configuration loading, validation, and atomic saving to
+- [x] Move configuration loading, validation, and atomic saving to
   `internal/config`.
 - [ ] Move HTTP routes and embedded frontend handling to `internal/server`.
 - [ ] Move Docker integration to `internal/docker`.

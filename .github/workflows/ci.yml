@@ -69,10 +69,8 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - uses: goreleaser/nfpm-action@v2
-        with:
-          install-only: true
-          version: v2.43.4
+      - name: Install nFPM
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.43.4
       - name: Build Linux binary
         env:
           CGO_ENABLED: "0"

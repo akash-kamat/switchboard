@@ -237,7 +237,7 @@ The GitHub raw URLs are canonical until a dedicated project domain is introduced
 
 ## Phase 5 — Package-manager distribution
 
-**Current phase**
+**Current phase — external registry publication**
 
 Publish existing signed release artifacts through native package ecosystems.
 
@@ -250,8 +250,13 @@ Recommended implementation order:
 - [ ] Publish RPM packages in a yum/dnf repository.
 - [ ] Publish and maintain an Arch AUR package.
 - [ ] Publish a Chocolatey package.
-- [ ] Automate package manifest updates after successful GitHub releases.
-- [ ] Document package-manager-specific upgrades and uninstall behavior.
+- [x] Automate package manifest updates after successful GitHub releases.
+- [x] Document package-manager-specific upgrades and uninstall behavior.
+
+The remaining entries require registry maintainer accounts, repository approval,
+or protected package-signing credentials. The manifests and signed repository
+workflow are ready in this repository; they intentionally do not publish using
+unreviewed source pushes or credentials committed to Git.
 
 An npm package is intentionally deferred because Switchboard does not use Node.js.
 It should only be reconsidered if there is a strong user need for npm as a binary

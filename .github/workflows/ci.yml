@@ -69,19 +69,63 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Install nFPM
-        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.43.4
-      - name: Build Linux binary
-        env:
-          CGO_ENABLED: "0"
-          GOOS: linux
-          GOARCH: amd64
-        run: go build -trimpath -o dist/switchboard-linux-amd64 ./cmd/switchboard
-      - name: Build and inspect packages
+      - name: Build snapshot release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: v2.12.7
+          args: release --snapshot --clean
+      - name: Inspect package matrix
         run: |
-          nfpm package --config packaging/nfpm.yaml --packager deb --target dist/switchboard.deb
-          nfpm package --config packaging/nfpm.yaml --packager rpm --target dist/switchboard.rpm
-          test -s dist/switchboard.deb
-          test -s dist/switchboard.rpm
-          dpkg-deb --contents dist/switchboard.deb | grep /usr/bin/switchboard
-          dpkg-deb --contents dist/switchboard.deb | grep /etc/switchboard/config.yaml
+          test "$(find release-dist -maxdepth 1 -name '*.deb' | wc -l)" -eq 3
+          test "$(find release-dist -maxdepth 1 -name '*.rpm' | wc -l)" -eq 3
+          test "$(find release-dist -maxdepth 1 -name '*.pkg.tar.zst' | wc -l)" -eq 3
+          test -s release-dist/checksums.txt
+          deb=$(find release-dist -maxdepth 1 -name '*linux_amd64.deb' -print -quit)
+          dpkg-deb --contents "$deb" | grep /usr/bin/switchboard
+          dpkg-deb --contents "$deb" | grep /etc/switchboard/config.yaml
+          test "$(dpkg-deb --field "$deb" Architecture)" = amd64
+      - name: Test Debian package lifecycle
+        run: |
+          set -eu
+          deb=$(find release-dist -maxdepth 1 -name '*linux_amd64.deb' -print -quit)
+
+          sudo dpkg -i "$deb"
+          test -x /usr/bin/switchboard
+          id switchboard
+          test "$(stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
+          test "$(stat -c '%U:%G:%a' /var/lib/switchboard)" = switchboard:switchboard:750
+
+          printf '\n# lifecycle-test\n' | sudo tee -a /etc/switchboard/config.yaml >/dev/null
+          config_hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          sudo dpkg -i "$deb"
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+
+          cp "$deb" /tmp/switchboard-broken.deb
+          truncate -s 128 /tmp/switchboard-broken.deb
+          if sudo dpkg -i /tmp/switchboard-broken.deb; then
+            echo "corrupt package unexpectedly installed" >&2
+            exit 1
+          fi
+          test -x /usr/bin/switchboard
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+
+          sudo dpkg --remove switchboard
+          test ! -e /usr/bin/switchboard
+          test -f /etc/switchboard/config.yaml
+          test -d /var/lib/switchboard
+
+          sudo dpkg -i "$deb"
+          test -x /usr/bin/switchboard
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: switchboard-snapshot
+          path: |
+            release-dist/*.deb
+            release-dist/*.rpm
+            release-dist/*.pkg.tar.zst
+            release-dist/*.tar.gz
+            release-dist/*.zip
+            release-dist/checksums.txt

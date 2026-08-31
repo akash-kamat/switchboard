@@ -1,0 +1,125 @@
+version: 2
+
+project_name: switchboard
+
+dist: release-dist
+
+builds:
+  - id: switchboard-linux
+    main: ./cmd/switchboard
+    binary: switchboard
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "7"
+    flags:
+      - -trimpath
+    ldflags:
+      - >-
+        -s -w
+        -X main.version={{.Version}}
+        -X main.commit={{.Commit}}
+        -X main.buildDate={{.Date}}
+
+  - id: switchboard-portable
+    main: ./cmd/switchboard
+    binary: switchboard
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - >-
+        -s -w
+        -X main.version={{.Version}}
+        -X main.commit={{.Commit}}
+        -X main.buildDate={{.Date}}
+
+archives:
+  - id: archives
+    ids:
+      - switchboard-linux
+      - switchboard-portable
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE
+      - README.md
+      - config.example.yaml
+
+nfpms:
+  - id: linux-packages
+    ids:
+      - switchboard-linux
+    package_name: switchboard
+    vendor: Switchboard
+    homepage: https://github.com/akash-kamat/switchboard
+    maintainer: Akash Kamat <akash-kamat@users.noreply.github.com>
+    description: Lightweight dashboard for system services and Docker containers
+    license: MIT
+    section: admin
+    priority: optional
+    formats:
+      - deb
+      - rpm
+      - archlinux
+    dependencies:
+      - systemd
+    contents:
+      - src: config.example.yaml
+        dst: /etc/switchboard/config.yaml
+        type: config|noreplace
+        file_info:
+          mode: 0660
+          owner: root
+          group: switchboard
+      - src: deploy/switchboard.service
+        dst: /usr/lib/systemd/system/switchboard.service
+        file_info:
+          mode: 0644
+          owner: root
+          group: root
+      - dst: /var/lib/switchboard
+        type: dir
+        file_info:
+          mode: 0750
+          owner: switchboard
+          group: switchboard
+    scripts:
+      preinstall: packaging/scripts/preinstall.sh
+      postinstall: packaging/scripts/postinstall.sh
+      preremove: packaging/scripts/preremove.sh
+      postremove: packaging/scripts/postremove.sh
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+  draft: true

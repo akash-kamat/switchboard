@@ -110,16 +110,16 @@ Deliver a production-quality Linux installation, beginning with systemd.
 
 ### Filesystem layout
 
-- [ ] Install the executable at `/usr/bin/switchboard` for native packages.
-- [ ] Store administrator configuration in `/etc/switchboard/config.yaml`.
-- [ ] Store persistent writable state in `/var/lib/switchboard`.
+- [x] Install the executable at `/usr/bin/switchboard` for native packages.
+- [x] Store administrator configuration in `/etc/switchboard/config.yaml`.
+- [x] Store persistent writable state in `/var/lib/switchboard`.
 - [ ] Use `/run/switchboard` for temporary runtime state if needed.
 - [x] Log through stdout/stderr so systemd captures logs in the journal.
 - [x] Define ownership and permissions for every installed path.
 
 ### Least-privilege security
 
-- [ ] Create a dedicated system user and group named `switchboard`.
+- [x] Create a dedicated system user and group named `switchboard`.
 - [x] Run the web server without root privileges.
 - [x] Bind to loopback by default or clearly warn before exposing the dashboard.
 - [x] Threat-model Docker socket access, which is effectively root-level access.
@@ -139,10 +139,10 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [ ] Create Debian packages for amd64, arm64, and armv7.
 - [ ] Create RPM packages for amd64, arm64, and armv7 where supported.
 - [ ] Create an Arch Linux `PKGBUILD` for supported architectures.
-- [ ] Ensure installation creates required users, groups, directories, and files.
-- [ ] Ensure upgrades never overwrite an existing configuration.
-- [ ] Ensure uninstall stops and removes the service while preserving user data.
-- [ ] Provide an explicit purge path for configuration and state.
+- [x] Ensure installation creates required users, groups, directories, and files.
+- [x] Ensure upgrades never overwrite an existing configuration.
+- [x] Ensure uninstall stops and removes the service while preserving user data.
+- [x] Provide an explicit purge path for configuration and state.
 - [ ] Test install, upgrade, uninstall, reinstall, and failed-upgrade behavior in
   clean virtual machines or containers.
 

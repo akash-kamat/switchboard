@@ -9,17 +9,20 @@ Copy the ARM64 executable, example configuration, and service unit to the host,
 then run:
 
 ```sh
-sudo install -m 0755 switchboard-linux-arm64 /usr/local/bin/switchboard
-sudo install -d -m 0755 /etc/switchboard
-sudo install -m 0644 config.example.yaml /etc/switchboard/config.yaml
+sudo groupadd --system switchboard 2>/dev/null || true
+sudo useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell /usr/sbin/nologin switchboard 2>/dev/null || true
+sudo install -m 0755 switchboard-linux-arm64 /usr/bin/switchboard
+sudo install -d -o root -g switchboard -m 0750 /etc/switchboard
+sudo install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
+sudo install -o root -g switchboard -m 0660 config.example.yaml /etc/switchboard/config.yaml
 sudo install -m 0644 switchboard.service /etc/systemd/system/switchboard.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now switchboard
 ```
 
 Do not replace `/etc/switchboard/config.yaml` when upgrading an existing install.
-The current unit runs as root to access systemd and the Docker socket; read the
-security warning in the main README before exposing the HTTP port.
+The unit runs without root privileges. Read the security guide before deliberately
+granting Docker access or exposing the HTTP port.
 
 ## Verify
 
@@ -42,7 +45,18 @@ replace the configuration as part of an executable-only upgrade.
 sudo systemctl disable --now switchboard
 sudo rm /etc/systemd/system/switchboard.service
 sudo systemctl daemon-reload
-sudo rm /usr/local/bin/switchboard
+sudo rm /usr/bin/switchboard
 ```
 
 The removal steps intentionally preserve `/etc/switchboard/config.yaml`.
+
+Native package removal also preserves the `switchboard` account, configuration,
+and `/var/lib/switchboard`. To explicitly purge that retained data after removal:
+
+```sh
+sudo rm -r /etc/switchboard /var/lib/switchboard
+sudo userdel switchboard
+sudo groupdel switchboard 2>/dev/null || true
+```
+
+Back up the configuration before purging; these commands are irreversible.

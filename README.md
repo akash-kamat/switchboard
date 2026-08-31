@@ -44,9 +44,12 @@ See [docs/linux-installation.md](docs/linux-installation.md) for installation,
 upgrade, rollback, and removal steps.
 
 ```sh
-sudo install -m 0755 dist/switchboard-linux-arm64 /usr/local/bin/switchboard
-sudo install -d -m 0755 /etc/switchboard
-sudo install -m 0644 config.example.yaml /etc/switchboard/config.yaml
+sudo groupadd --system switchboard 2>/dev/null || true
+sudo useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell /usr/sbin/nologin switchboard 2>/dev/null || true
+sudo install -m 0755 dist/switchboard-linux-arm64 /usr/bin/switchboard
+sudo install -d -o root -g switchboard -m 0750 /etc/switchboard
+sudo install -d -o switchboard -g switchboard -m 0750 /var/lib/switchboard
+sudo install -o root -g switchboard -m 0660 config.example.yaml /etc/switchboard/config.yaml
 sudo install -m 0644 deploy/switchboard.service /etc/systemd/system/switchboard.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now switchboard
@@ -59,7 +62,9 @@ systemctl status switchboard
 journalctl -u switchboard -n 100 --no-pager
 ```
 
-The supplied service runs as root because systemd control requires privilege and access to Docker's socket is effectively root-level access. It permits writes to `/etc/switchboard` so settings can be saved from the UI.
+The supplied service runs as the unprivileged `switchboard` account. Docker and
+systemd mutations require explicit additional permissions; they are not granted by
+the installer.
 
 Switchboard has no login by design. Keep it on a trusted LAN, bind it to `127.0.0.1:8080` behind an authenticated reverse proxy, or firewall port 8080 from untrusted networks.
 

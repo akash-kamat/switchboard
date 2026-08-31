@@ -80,7 +80,7 @@ def main() -> None:
 
   def install
     bin.install "switchboard"
-    etc.install "config.example.yaml" => "switchboard/config.yaml"
+    (etc/"switchboard").install "config.example.yaml" => "config.yaml"
   end
 
   service do

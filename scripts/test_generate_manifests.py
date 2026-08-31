@@ -30,6 +30,7 @@ class ManifestGeneratorTest(unittest.TestCase):
             formula = output / "homebrew" / "Formula" / "switchboard.rb"
             self.assertTrue(formula.is_file())
             self.assertIn('shell_output("#{bin}/switchboard version")', formula.read_text(encoding="utf-8"))
+            self.assertIn('(etc/"switchboard").install "config.example.yaml" => "config.yaml"', formula.read_text(encoding="utf-8"))
             self.assertTrue(any(path.name == "switchboard.json" for path in files))
             self.assertTrue(any(path.name == "PKGBUILD" for path in files))
             for path in files:

@@ -37,7 +37,7 @@ if [ "$os" = darwin ] && [ "$arch" = armv7 ]; then echo "Unsupported macOS archi
 if [ "$uninstall" = true ]; then
   if [ "$os" = linux ]; then
     systemctl disable --now switchboard 2>/dev/null || true
-    rm -f /etc/systemd/system/switchboard.service /usr/lib/systemd/system/switchboard.service /usr/local/bin/switchboard
+    rm -f /etc/systemd/system/switchboard.service /usr/lib/systemd/system/switchboard.service /usr/bin/switchboard /usr/local/bin/switchboard
     systemctl daemon-reload
     echo "Removed Switchboard; /etc/switchboard and /var/lib/switchboard were preserved."
   else
@@ -63,9 +63,10 @@ expected=$(awk -v file="$archive" '$2 == file {print $1}' "$tmp/checksums.txt")
 if command -v sha256sum >/dev/null 2>&1; then actual=$(sha256sum "$tmp/$archive" | awk '{print $1}'); else actual=$(shasum -a 256 "$tmp/$archive" | awk '{print $1}'); fi
 [ "$actual" = "$expected" ] || { echo "Checksum verification failed" >&2; exit 1; }
 tar -xzf "$tmp/$archive" -C "$tmp"
-install -m 0755 "$tmp/switchboard" /usr/local/bin/switchboard
 
 if [ "$os" = linux ]; then
+  systemctl stop switchboard 2>/dev/null || true
+  install -m 0755 "$tmp/switchboard" /usr/bin/switchboard
   getent group switchboard >/dev/null 2>&1 || groupadd --system switchboard
   id switchboard >/dev/null 2>&1 || useradd --system --gid switchboard --home-dir /var/lib/switchboard --shell "$(command -v nologin || echo /usr/sbin/nologin)" switchboard
   install -d -o root -g switchboard -m 0750 /etc/switchboard
@@ -75,6 +76,7 @@ if [ "$os" = linux ]; then
   systemctl daemon-reload
   systemctl enable --now switchboard
 else
+  install -m 0755 "$tmp/switchboard" /usr/local/bin/switchboard
   install -d -m 0755 "/Library/Application Support/Switchboard"
   if [ ! -e "/Library/Application Support/Switchboard/config.yaml" ]; then install -m 0644 "$tmp/config.example.yaml" "/Library/Application Support/Switchboard/config.yaml"; fi
   curl --fail --silent --show-error --location "https://raw.githubusercontent.com/$repository/main/deploy/com.akash-kamat.switchboard.plist" --output /Library/LaunchDaemons/com.akash-kamat.switchboard.plist

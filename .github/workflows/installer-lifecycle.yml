@@ -1,4 +1,4 @@
-name: Windows and macOS installer lifecycle
+name: Installer lifecycle
 
 on:
   workflow_dispatch:
@@ -13,6 +13,28 @@ permissions:
   contents: read
 
 jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install, upgrade, and uninstall
+        run: |
+          set -eu
+          tag="${{ inputs.tag || github.event.release.tag_name }}"
+          sudo sh install.sh --version "$tag"
+          config=/etc/switchboard/config.yaml
+          printf '\n# lifecycle-test\n' | sudo tee -a "$config" >/dev/null
+          before=$(sha256sum "$config" | awk '{print $1}')
+          sudo sh install.sh --version "$tag"
+          test "$(sha256sum "$config" | awk '{print $1}')" = "$before"
+          test -x /usr/bin/switchboard
+          sudo systemctl is-active --quiet switchboard
+          curl --fail --silent http://127.0.0.1:8080/api/system >/dev/null
+          sudo sh install.sh --uninstall
+          test -f "$config"
+          test ! -e /usr/bin/switchboard
+          test ! -e /etc/systemd/system/switchboard.service
+
   windows:
     runs-on: windows-latest
     steps:

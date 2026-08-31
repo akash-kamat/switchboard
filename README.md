@@ -82,6 +82,8 @@ Docker actions use `/var/run/docker.sock` directly. Systemd actions use `systemc
 The current routes and response contracts are documented in [docs/api.md](docs/api.md).
 
 Current platform and toolchain requirements are in [docs/support.md](docs/support.md).
+The lightweight runtime budget and measurement commands are in
+[docs/performance.md](docs/performance.md).
 
 ## Development
 

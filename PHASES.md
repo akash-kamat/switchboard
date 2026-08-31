@@ -61,8 +61,6 @@ Establish a reliable baseline before reorganizing code.
 
 ## Phase 1 — Portable foundation and minimal CLI
 
-**Current phase**
-
 Reorganize the code without changing the user-facing dashboard.
 
 ### Project structure
@@ -94,17 +92,19 @@ Reorganize the code without changing the user-facing dashboard.
 - [x] Apply sensible HTTP read, write, idle, and header timeouts.
 - [x] Make all writable paths configurable and platform appropriate.
 - [x] Ensure configuration writes remain validated and atomic.
-- [ ] Keep idle CPU and memory use appropriate for small Raspberry Pi systems.
+- [x] Keep idle CPU and memory use appropriate for small Raspberry Pi systems.
 - [x] Run `go test ./...`, `go vet ./...`, and frontend syntax checks in CI.
 - [x] Cross-compile every target in the support matrix.
 
 ### Exit criteria
 
-- [ ] All three CLI commands work and are documented.
-- [ ] Linux, Windows, and macOS builds compile in CI.
-- [ ] Existing DietPi behavior and configuration remain compatible.
+- [x] All three CLI commands work and are documented.
+- [x] Linux, Windows, and macOS builds compile in CI.
+- [x] Existing DietPi behavior and configuration remain compatible.
 
 ## Phase 2 — Secure Linux service and native packages
+
+**Current phase**
 
 Deliver a production-quality Linux installation, beginning with systemd.
 

@@ -104,8 +104,6 @@ Reorganize the code without changing the user-facing dashboard.
 
 ## Phase 2 — Secure Linux service and native packages
 
-**Current phase**
-
 Deliver a production-quality Linux installation, beginning with systemd.
 
 ### Filesystem layout
@@ -145,18 +143,20 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [x] Ensure upgrades never overwrite an existing configuration.
 - [x] Ensure uninstall stops and removes the service while preserving user data.
 - [x] Provide an explicit purge path for configuration and state.
-- [ ] Test install, upgrade, uninstall, reinstall, and failed-upgrade behavior in
+- [x] Test install, upgrade, uninstall, reinstall, and failed-upgrade behavior in
   clean virtual machines or containers.
 
 ### Exit criteria
 
-- [ ] DietPi/Raspberry Pi OS, Debian/Ubuntu, Fedora, and Arch installation paths are
+- [x] DietPi/Raspberry Pi OS, Debian/Ubuntu, Fedora, and Arch installation paths are
   documented and tested.
-- [ ] Switchboard runs as a dedicated unprivileged account by default.
-- [ ] Docker and systemd control require deliberate, documented opt-in permissions.
-- [ ] Package upgrade preserves configuration and state.
+- [x] Switchboard runs as a dedicated unprivileged account by default.
+- [x] Docker and systemd control require deliberate, documented opt-in permissions.
+- [x] Package upgrade preserves configuration and state.
 
 ## Phase 3 — Windows and macOS runtime support
+
+**Current phase**
 
 Implement native behavior instead of merely producing compilable binaries.
 

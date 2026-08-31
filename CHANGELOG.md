@@ -5,6 +5,8 @@ not yet released are recorded under `Unreleased`; tagged versions are immutable.
 
 ## Unreleased
 
+## 0.1.2 - 2026-08-31
+
 - Run native Linux installations as root and Windows installations as
   LocalSystem so Docker and native-service controls work immediately.
 - Automatically select and persist a free port from 8081 through 8099 when the

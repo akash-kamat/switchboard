@@ -1,0 +1,103 @@
+name: Linux package lifecycle
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".goreleaser.yaml"
+      - "packaging/**"
+      - "deploy/**"
+      - "config.example.yaml"
+      - ".github/workflows/linux-packages.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  linux-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build snapshot release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: v2.12.7
+          args: release --snapshot --clean
+      - name: Inspect package matrix
+        run: |
+          test "$(find release-dist -maxdepth 1 -name '*.deb' | wc -l)" -eq 3
+          test "$(find release-dist -maxdepth 1 -name '*.rpm' | wc -l)" -eq 3
+          test "$(find release-dist -maxdepth 1 -name '*.pkg.tar.zst' | wc -l)" -eq 3
+          test -s release-dist/checksums.txt
+          deb=$(find release-dist -maxdepth 1 -name '*linux_amd64.deb' -print -quit)
+          dpkg-deb --contents "$deb" | grep /usr/bin/switchboard
+          dpkg-deb --contents "$deb" | grep /etc/switchboard/config.yaml
+      - name: Test Debian package lifecycle
+        run: |
+          set -eu
+          deb=$(find release-dist -maxdepth 1 -name '*linux_amd64.deb' -print -quit)
+          sudo dpkg -i "$deb"
+          test -x /usr/bin/switchboard
+          test "$(sudo stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
+          printf '\n# lifecycle-test\n' | sudo tee -a /etc/switchboard/config.yaml >/dev/null
+          config_hash=$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          sudo dpkg -i "$deb"
+          test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+          sudo dpkg --remove switchboard
+          sudo test -f /etc/switchboard/config.yaml
+          sudo dpkg -i "$deb"
+          test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: switchboard-snapshot
+          path: release-dist/*
+
+  rpm-package-lifecycle:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: switchboard-snapshot
+          path: release-dist
+      - name: Test RPM lifecycle
+        run: |
+          set -eu
+          package=$(find release-dist -name '*linux_amd64.rpm' -print -quit)
+          dnf install -y "$package"
+          printf '\n# lifecycle-test\n' >>/etc/switchboard/config.yaml
+          hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          rpm --upgrade --replacepkgs "$package"
+          rpm --erase switchboard
+          test -f /etc/switchboard/config.yaml
+          dnf install -y "$package"
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$hash"
+
+  arch-package-lifecycle:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: switchboard-snapshot
+          path: release-dist
+      - name: Test Arch lifecycle
+        run: |
+          set -eu
+          package=$(find release-dist -name '*linux_amd64.pkg.tar.zst' -print -quit)
+          pacman -Sy --noconfirm
+          pacman -U --noconfirm "$package"
+          printf '\n# lifecycle-test\n' >>/etc/switchboard/config.yaml
+          hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          pacman -U --noconfirm "$package"
+          pacman -R --noconfirm switchboard
+          test -f /etc/switchboard/config.yaml
+          pacman -U --noconfirm "$package"
+          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$hash"

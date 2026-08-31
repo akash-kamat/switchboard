@@ -44,3 +44,16 @@ func TestCLIUsageErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestLoopbackListenDetection(t *testing.T) {
+	for _, address := range []string{"127.0.0.1:8080", "[::1]:8080", "localhost:8080"} {
+		if !isLoopbackListen(address) {
+			t.Errorf("%q should be loopback", address)
+		}
+	}
+	for _, address := range []string{":8080", "0.0.0.0:8080", "192.168.1.2:8080", "bad"} {
+		if isLoopbackListen(address) {
+			t.Errorf("%q should be exposed", address)
+		}
+	}
+}

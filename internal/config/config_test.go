@@ -65,6 +65,8 @@ func TestLoadConfigRejectsInvalidServices(t *testing.T) {
 		"dashboard:\n  background: green\nservices: []\n",
 		"dashboard:\n  overview: [cpu, weather]\nservices: []\n",
 		"services:\n  - name: Demo\n    icon: javascript:alert(1)\n    type: docker\n    container: demo\n",
+		"services:\n  - name: Demo\n    type: docker\n    container: 'demo;shutdown'\n",
+		"services:\n  - name: Demo\n    type: systemd\n    unit: 'demo.service --now'\n",
 	}
 	for _, contents := range cases {
 		if _, err := loadConfig(writeTestConfig(t, contents)); err == nil {

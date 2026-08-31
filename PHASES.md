@@ -114,28 +114,28 @@ Deliver a production-quality Linux installation, beginning with systemd.
 - [ ] Store administrator configuration in `/etc/switchboard/config.yaml`.
 - [ ] Store persistent writable state in `/var/lib/switchboard`.
 - [ ] Use `/run/switchboard` for temporary runtime state if needed.
-- [ ] Log through stdout/stderr so systemd captures logs in the journal.
-- [ ] Define ownership and permissions for every installed path.
+- [x] Log through stdout/stderr so systemd captures logs in the journal.
+- [x] Define ownership and permissions for every installed path.
 
 ### Least-privilege security
 
 - [ ] Create a dedicated system user and group named `switchboard`.
-- [ ] Run the web server without root privileges.
-- [ ] Bind to loopback by default or clearly warn before exposing the dashboard.
-- [ ] Threat-model Docker socket access, which is effectively root-level access.
-- [ ] Do not silently add the service account to the Docker group.
-- [ ] Design an explicit opt-in mechanism for Docker control.
-- [ ] Design narrowly scoped privilege elevation for approved systemd operations.
-- [ ] Validate service/container identifiers before invoking control operations.
-- [ ] Avoid shell command construction; pass arguments directly to processes.
-- [ ] Add authentication guidance before supporting non-loopback access.
-- [ ] Harden the systemd unit where compatible, including filesystem and privilege
+- [x] Run the web server without root privileges.
+- [x] Bind to loopback by default or clearly warn before exposing the dashboard.
+- [x] Threat-model Docker socket access, which is effectively root-level access.
+- [x] Do not silently add the service account to the Docker group.
+- [x] Design an explicit opt-in mechanism for Docker control.
+- [x] Design narrowly scoped privilege elevation for approved systemd operations.
+- [x] Validate service/container identifiers before invoking control operations.
+- [x] Avoid shell command construction; pass arguments directly to processes.
+- [x] Add authentication guidance before supporting non-loopback access.
+- [x] Harden the systemd unit where compatible, including filesystem and privilege
   restrictions.
-- [ ] Document the security consequences of every optional privileged feature.
+- [x] Document the security consequences of every optional privileged feature.
 
 ### Packaging
 
-- [ ] Create a hardened systemd unit.
+- [x] Create a hardened systemd unit.
 - [ ] Create Debian packages for amd64, arm64, and armv7.
 - [ ] Create RPM packages for amd64, arm64, and armv7 where supported.
 - [ ] Create an Arch Linux `PKGBUILD` for supported architectures.

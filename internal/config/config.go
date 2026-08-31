@@ -13,6 +13,8 @@ import (
 )
 
 var hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
+var dockerIdentifier = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$`)
+var systemdIdentifier = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9:_.@-]{0,255}$`)
 
 var allowedOverviewMetrics = map[string]bool{
 	"cpu": true, "memory": true, "storage": true, "temperature": true, "load": true, "swap": true,
@@ -164,9 +166,15 @@ func validateConfig(cfg *Config) error {
 			if s.Container == "" {
 				return fmt.Errorf("service %q: container is required", s.Name)
 			}
+			if !dockerIdentifier.MatchString(s.Container) {
+				return fmt.Errorf("service %q: container contains invalid characters", s.Name)
+			}
 		case "systemd":
 			if s.Unit == "" {
 				return fmt.Errorf("service %q: unit is required", s.Name)
+			}
+			if !systemdIdentifier.MatchString(s.Unit) {
+				return fmt.Errorf("service %q: unit contains invalid characters", s.Name)
 			}
 		default:
 			return fmt.Errorf("service %q: type must be docker or systemd", s.Name)

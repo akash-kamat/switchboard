@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -105,6 +106,9 @@ func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error
 	if err != nil {
 		return err
 	}
+	if !isLoopbackListen(cfg.Listen) {
+		log.Printf("WARNING: listening on %s exposes an unauthenticated control API; use a firewall or authenticated reverse proxy", cfg.Listen)
+	}
 	srv := &http.Server{
 		Addr:              cfg.Listen,
 		Handler:           server.New(cfg, docker.New(dockerSocket), host.NewNativeBackend(), host.NewSystemCollector(diskPath), configPath),
@@ -134,4 +138,16 @@ func serve(ctx context.Context, configPath, dockerSocket, diskPath string) error
 		}
 		return nil
 	}
+}
+
+func isLoopbackListen(address string) bool {
+	hostName, _, err := net.SplitHostPort(address)
+	if err != nil || hostName == "" {
+		return false
+	}
+	if strings.EqualFold(hostName, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(strings.Trim(hostName, "[]"))
+	return ip != nil && ip.IsLoopback()
 }

@@ -84,6 +84,8 @@ The current routes and response contracts are documented in [docs/api.md](docs/a
 Current platform and toolchain requirements are in [docs/support.md](docs/support.md).
 The lightweight runtime budget and measurement commands are in
 [docs/performance.md](docs/performance.md).
+Read [docs/security.md](docs/security.md) before enabling Docker access or exposing
+Switchboard beyond the local machine.
 
 ## Development
 

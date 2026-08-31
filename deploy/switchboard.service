@@ -5,20 +5,30 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-Group=root
-ExecStart=/usr/local/bin/switchboard -config /etc/switchboard/config.yaml
+User=switchboard
+Group=switchboard
+ExecStart=/usr/bin/switchboard serve --config /etc/switchboard/config.yaml
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
-ProtectSystem=full
-ReadWritePaths=/etc/switchboard /etc/systemd/system /run/systemd/system
+ProtectSystem=strict
+ReadWritePaths=/etc/switchboard /var/lib/switchboard
 ProtectHome=true
 PrivateTmp=true
+PrivateDevices=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+CapabilityBoundingSet=
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target

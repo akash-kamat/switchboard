@@ -101,6 +101,8 @@ The lightweight runtime budget and measurement commands are in
 [docs/performance.md](docs/performance.md).
 Read [docs/security.md](docs/security.md) before enabling Docker access or exposing
 Switchboard beyond the local machine.
+Backup and recovery procedures are in [docs/backup-recovery.md](docs/backup-recovery.md).
+Common failures are covered in [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## Development
 

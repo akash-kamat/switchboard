@@ -266,23 +266,23 @@ distribution wrapper.
 
 ## Phase 6 — Production readiness
 
-- [ ] Add `LICENSE`.
-- [ ] Add `CHANGELOG.md` and adopt semantic versioning.
-- [ ] Add contribution and security-reporting documentation.
-- [ ] Document every configuration field and environment override.
-- [ ] Document API routes and stability expectations.
-- [ ] Add backup, restore, migration, and disaster-recovery instructions.
-- [ ] Add dependency and vulnerability scanning.
-- [ ] Add integration tests for Docker and native service adapters.
-- [ ] Add package installation tests for every supported platform.
-- [ ] Establish a supported-version and security-update policy.
-- [ ] Complete a security review before declaring `v1.0.0` stable.
+- [x] Add `LICENSE`.
+- [x] Add `CHANGELOG.md` and adopt semantic versioning.
+- [x] Add contribution and security-reporting documentation.
+- [x] Document every configuration field and environment override.
+- [x] Document API routes and stability expectations.
+- [x] Add backup, restore, migration, and disaster-recovery instructions.
+- [x] Add dependency and vulnerability scanning.
+- [x] Add integration tests for Docker and native service adapters.
+- [x] Add package installation tests for every supported platform.
+- [x] Establish a supported-version and security-update policy.
+- [x] Complete a security review before declaring `v1.0.0` stable.
 
 ### Exit criteria
 
-- [ ] A new user can install, configure, update, troubleshoot, and uninstall
+- [x] A new user can install, configure, update, troubleshoot, and uninstall
   Switchboard using only the documentation.
-- [ ] Release and security maintenance processes are documented and repeatable.
+- [x] Release and security maintenance processes are documented and repeatable.
 
 ## Definition of done for each roadmap item
 

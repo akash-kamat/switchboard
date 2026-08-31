@@ -36,3 +36,10 @@ fields are `icon`, `href`, `description`, `group`, and `autostart`.
 Unknown fields, duplicate service names, unsafe URLs, invalid choices, and missing
 required fields are rejected. UI saves are validated and written using a temporary
 file plus atomic rename; a failed validation leaves the original file untouched.
+
+## Command-line and environment overrides
+
+`serve` accepts `--config`, `--docker-socket`, and `--disk-path`. These override
+platform defaults but are not written into YAML. Switchboard intentionally has no
+environment-variable configuration overrides, preventing hidden service-manager
+environment from silently changing security-sensitive behavior.

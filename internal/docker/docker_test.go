@@ -3,6 +3,7 @@ package docker
 import (
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 )
@@ -17,6 +18,24 @@ func dockerResponse(body string) *http.Response {
 		Status:     "200 OK",
 		Header:     make(http.Header),
 		Body:       io.NopCloser(strings.NewReader(body)),
+	}
+}
+
+func TestDockerEngineIntegration(t *testing.T) {
+	if os.Getenv("SWITCHBOARD_DOCKER_INTEGRATION") != "1" {
+		t.Skip("set SWITCHBOARD_DOCKER_INTEGRATION=1 to use a real Docker Engine")
+	}
+	backend := newDockerBackend("/var/run/docker.sock")
+	service := Service{Name: "Integration", Type: "docker", Container: "switchboard-ci"}
+	state, err := backend.State(service)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Status != "running" {
+		t.Fatalf("status = %q, want running", state.Status)
+	}
+	if err := backend.Action(service, "restart"); err != nil {
+		t.Fatal(err)
 	}
 }
 

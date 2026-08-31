@@ -1,0 +1,28 @@
+name: Docker integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "internal/docker/**"
+      - ".github/workflows/docker-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  docker-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: docker run --detach --name switchboard-ci alpine:3.22 sleep 300
+      - name: Exercise inspect, stats, and restart APIs
+        env:
+          SWITCHBOARD_DOCKER_INTEGRATION: "1"
+        run: go test ./internal/docker -run TestDockerEngineIntegration -v
+      - if: always()
+        run: docker rm --force switchboard-ci

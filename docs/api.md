@@ -24,3 +24,9 @@ configuration returns `422`. Mutating cross-origin browser requests return `403`
 `PUT /api/config` accepts exactly one of `{"config":{...}}` or
 `{"yaml":"..."}`. Request bodies are size-limited and unknown JSON fields are
 rejected.
+
+During the 0.x preview series this API is supported for the bundled frontend and
+best-effort external automation. Additive response fields may appear in minor
+releases; consumers must ignore unknown fields. Removing or changing a route or
+field is documented in the changelog. At v1.0, the project will either freeze
+this contract or introduce an explicitly versioned `/api/v1` namespace.

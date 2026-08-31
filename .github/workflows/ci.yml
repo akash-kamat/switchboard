@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths-ignore:
       - "docs/**"
+      - "distribution/**"
       - "**/*.md"
   pull_request:
 
@@ -26,6 +27,7 @@ jobs:
       - run: go test ./...
       - run: go vet ./...
       - run: node --check internal/server/web/app.js
+      - run: python3 -m unittest scripts/test_generate_manifests.py
       - name: Check package scripts
         run: shellcheck packaging/scripts/*.sh
 

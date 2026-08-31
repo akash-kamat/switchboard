@@ -1,0 +1,52 @@
+name: Generate distribution manifests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published tag, for example v1.2.3
+        required: true
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: distribution-manifests
+  cancel-in-progress: false
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Download and verify release inputs
+        run: |
+          tag="${{ inputs.tag || github.event.release.tag_name }}"
+          mkdir -p "$RUNNER_TEMP/release"
+          gh release download "$tag" --dir "$RUNNER_TEMP/release"
+          cd "$RUNNER_TEMP/release"
+          sha256sum --ignore-missing -c checksums.txt
+      - name: Generate package-manager manifests
+        run: |
+          tag="${{ inputs.tag || github.event.release.tag_name }}"
+          python3 scripts/generate_manifests.py --version "$tag" --checksums "$RUNNER_TEMP/release/checksums.txt"
+      - name: Validate generated manifests
+        run: |
+          python3 -m json.tool distribution/scoop/switchboard.json >/dev/null
+          ruby -c distribution/homebrew/Formula/switchboard.rb
+          grep -R '{{' distribution && exit 1 || true
+      - name: Commit generated manifests
+        run: |
+          tag="${{ inputs.tag || github.event.release.tag_name }}"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add distribution
+          git diff --cached --quiet && exit 0
+          git commit -m "Update package manifests for $tag"
+          git push origin HEAD:main

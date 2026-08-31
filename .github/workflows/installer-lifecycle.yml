@@ -1,0 +1,52 @@
+name: Windows and macOS installer lifecycle
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published tag to test, for example v1.2.3
+        required: true
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install, upgrade, and uninstall
+        shell: pwsh
+        run: |
+          $tag = "${{ inputs.tag || github.event.release.tag_name }}"
+          .\install.ps1 -Version $tag
+          $config = Join-Path $env:ProgramData "Switchboard\config.yaml"
+          Add-Content $config "`n# lifecycle-test"
+          $before = (Get-FileHash $config).Hash
+          .\install.ps1 -Version $tag
+          if ((Get-FileHash $config).Hash -ne $before) { throw "Upgrade replaced configuration" }
+          if ((Get-Service Switchboard).Status -ne "Running") { throw "Service is not running" }
+          Invoke-RestMethod http://127.0.0.1:8080/api/system | Out-Null
+          .\install.ps1 -Uninstall
+          if (-not (Test-Path $config)) { throw "Uninstall removed configuration" }
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install, upgrade, and uninstall
+        run: |
+          set -eu
+          tag="${{ inputs.tag || github.event.release.tag_name }}"
+          sudo sh install.sh --version "$tag"
+          config='/Library/Application Support/Switchboard/config.yaml'
+          printf '\n# lifecycle-test\n' | sudo tee -a "$config" >/dev/null
+          before=$(shasum -a 256 "$config" | awk '{print $1}')
+          sudo sh install.sh --version "$tag"
+          test "$(shasum -a 256 "$config" | awk '{print $1}')" = "$before"
+          sudo launchctl print system/com.akash-kamat.switchboard >/dev/null
+          curl --fail --silent http://127.0.0.1:8080/api/system >/dev/null
+          sudo sh install.sh --uninstall
+          test -f "$config"

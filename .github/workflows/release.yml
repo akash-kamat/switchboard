@@ -11,6 +11,7 @@ on:
         required: true
 
 permissions:
+  actions: write
   contents: write
   id-token: write
   packages: write
@@ -81,3 +82,8 @@ jobs:
             release-dist/checksums.txt.sigstore.json \
             release-dist/switchboard-sbom.cdx.json.sigstore.json \
             --clobber
+      - name: Start independent post-release workflows
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          gh workflow run distribution.yml --ref main -f tag="$tag"
+          gh workflow run installer-lifecycle.yml --ref main -f tag="$tag"

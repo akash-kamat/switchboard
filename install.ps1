@@ -10,6 +10,18 @@ $installDirectory = Join-Path $env:ProgramFiles "Switchboard"
 $dataDirectory = Join-Path $env:ProgramData "Switchboard"
 $executable = Join-Path $installDirectory "switchboard.exe"
 
+function Stop-SwitchboardService {
+    $service = Get-Service Switchboard -ErrorAction SilentlyContinue
+    if ($null -eq $service -or $service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Stopped) {
+        return
+    }
+    Stop-Service Switchboard
+    $service.WaitForStatus(
+        [System.ServiceProcess.ServiceControllerStatus]::Stopped,
+        [TimeSpan]::FromSeconds(30)
+    )
+}
+
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = [Security.Principal.WindowsPrincipal]::new($identity)
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -17,7 +29,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 }
 
 if ($Uninstall) {
-    Stop-Service Switchboard -ErrorAction SilentlyContinue
+    Stop-SwitchboardService
     & sc.exe delete Switchboard | Out-Null
     if (Test-Path -LiteralPath $installDirectory) { Remove-Item -LiteralPath $installDirectory -Recurse -Force }
     Write-Host "Removed Switchboard; $dataDirectory was preserved."
@@ -48,11 +60,11 @@ try {
     Expand-Archive (Join-Path $temporary $archive) -DestinationPath $temporary -Force
     New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
     New-Item -ItemType Directory -Path $dataDirectory -Force | Out-Null
+    Stop-SwitchboardService
     Copy-Item (Join-Path $temporary "switchboard.exe") $executable -Force
     $configPath = Join-Path $dataDirectory "config.yaml"
     if (-not (Test-Path -LiteralPath $configPath)) { Copy-Item (Join-Path $temporary "config.example.yaml") $configPath }
     & icacls.exe $dataDirectory /inheritance:r /grant:r "Administrators:(OI)(CI)F" "LOCAL SERVICE:(OI)(CI)M" | Out-Null
-    Stop-Service Switchboard -ErrorAction SilentlyContinue
     & sc.exe query Switchboard *> $null
     if ($LASTEXITCODE -eq 0) {
         & sc.exe config Switchboard binPath= ('"' + $executable + '" service --config "' + $configPath + '"') start= auto obj= "NT AUTHORITY\LocalService" | Out-Null

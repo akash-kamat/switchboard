@@ -18,5 +18,5 @@ func newDockerBackend(pipe string) *dockerBackend {
 		},
 		DisableCompression: true,
 	}
-	return &dockerBackend{client: &http.Client{Transport: transport, Timeout: 8 * time.Second}}
+	return &dockerBackend{client: &http.Client{Transport: transport, Timeout: 15 * time.Second}}
 }

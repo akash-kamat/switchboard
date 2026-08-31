@@ -93,13 +93,13 @@ jobs:
           sudo dpkg -i "$deb"
           test -x /usr/bin/switchboard
           id switchboard
-          test "$(stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
-          test "$(stat -c '%U:%G:%a' /var/lib/switchboard)" = switchboard:switchboard:750
+          test "$(sudo stat -c '%U:%G:%a' /etc/switchboard/config.yaml)" = root:switchboard:660
+          test "$(sudo stat -c '%U:%G:%a' /var/lib/switchboard)" = switchboard:switchboard:750
 
           printf '\n# lifecycle-test\n' | sudo tee -a /etc/switchboard/config.yaml >/dev/null
-          config_hash=$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
+          config_hash=$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)
           sudo dpkg -i "$deb"
-          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+          test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
 
           cp "$deb" /tmp/switchboard-broken.deb
           truncate -s 128 /tmp/switchboard-broken.deb
@@ -108,7 +108,7 @@ jobs:
             exit 1
           fi
           test -x /usr/bin/switchboard
-          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+          test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
 
           sudo dpkg --remove switchboard
           test ! -e /usr/bin/switchboard
@@ -117,7 +117,7 @@ jobs:
 
           sudo dpkg -i "$deb"
           test -x /usr/bin/switchboard
-          test "$(sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
+          test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
       - name: Upload snapshot artifacts
         uses: actions/upload-artifact@v4
         with:

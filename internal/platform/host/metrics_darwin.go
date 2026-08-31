@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/akash-kamat/switchboard/internal/platform"
@@ -19,14 +18,11 @@ import (
 type SystemStats = platform.SystemStats
 
 type systemMetrics struct {
-	diskPath          string
-	cpuMu             sync.Mutex
-	cpuTotal, cpuIdle uint64
+	diskPath string
 }
 
 func NewSystemCollector(path string) platform.SystemCollector {
-	total, idle, _ := darwinCPUTimes()
-	return &systemMetrics{diskPath: path, cpuTotal: total, cpuIdle: idle}
+	return &systemMetrics{diskPath: path}
 }
 
 func commandOutput(name string, args ...string) (string, error) {
@@ -39,44 +35,24 @@ func commandOutput(name string, args ...string) (string, error) {
 
 func sysctlValue(name string) (string, error) { return commandOutput("/usr/sbin/sysctl", "-n", name) }
 
-func darwinCPUTimes() (uint64, uint64, error) {
-	value, err := sysctlValue("kern.cp_time")
-	if err != nil {
-		return 0, 0, err
-	}
-	fields := strings.Fields(value)
-	if len(fields) < 4 {
-		return 0, 0, fmt.Errorf("unexpected kern.cp_time value")
-	}
-	var total uint64
-	for _, field := range fields {
-		v, parseErr := strconv.ParseUint(field, 10, 64)
-		if parseErr != nil {
-			return 0, 0, parseErr
-		}
-		total += v
-	}
-	idle, err := strconv.ParseUint(fields[3], 10, 64)
-	return total, idle, err
-}
-
-func (m *systemMetrics) cpuPercent() (float64, error) {
-	total, idle, err := darwinCPUTimes()
+func darwinCPUPercent() (float64, error) {
+	value, err := commandOutput("/bin/ps", "-A", "-o", "%cpu=")
 	if err != nil {
 		return 0, err
 	}
-	m.cpuMu.Lock()
-	oldTotal, oldIdle := m.cpuTotal, m.cpuIdle
-	m.cpuTotal, m.cpuIdle = total, idle
-	m.cpuMu.Unlock()
-	if total <= oldTotal || idle < oldIdle {
-		return 0, nil
+	var total float64
+	for _, field := range strings.Fields(value) {
+		v, parseErr := strconv.ParseFloat(field, 64)
+		if parseErr != nil {
+			continue
+		}
+		total += v
 	}
-	delta, idleDelta := total-oldTotal, idle-oldIdle
-	if delta == 0 || idleDelta > delta {
-		return 0, nil
+	percent := total / float64(runtime.NumCPU())
+	if percent > 100 {
+		percent = 100
 	}
-	return float64(delta-idleDelta) / float64(delta) * 100, nil
+	return percent, nil
 }
 
 func uintSysctl(name string) uint64 {
@@ -132,7 +108,7 @@ func darwinUptime() uint64 {
 }
 
 func (m *systemMetrics) Stats() (SystemStats, error) {
-	cpu, err := m.cpuPercent()
+	cpu, err := darwinCPUPercent()
 	if err != nil {
 		return SystemStats{}, fmt.Errorf("CPU metrics: %w", err)
 	}

@@ -30,7 +30,8 @@ docs/                  installation, configuration, API, and support contracts
 
 ## Build
 
-Go 1.23 or newer is required on the build machine.
+Go 1.25.13 or newer is required on the build machine. Published binaries do
+not require Go to be installed.
 
 ```sh
 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 \

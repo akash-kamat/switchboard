@@ -2,7 +2,8 @@
 
 ## Current release baseline
 
-- Build toolchain: Go 1.23 or newer.
+- Build toolchain: Go 1.25.13 or newer. Patch releases below this baseline are
+  not used because of fixed Go standard-library vulnerabilities.
 - Runtime: Linux (`amd64`, `arm64`, ARMv7), Windows (`amd64`, `arm64`), and
   macOS (`amd64`, Apple Silicon).
 - Init integration: systemd, Windows Service Control Manager, and launchd.

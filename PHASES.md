@@ -67,7 +67,7 @@ Reorganize the code without changing the user-facing dashboard.
 
 ### Project structure
 
-- [ ] Move executable startup code to `cmd/switchboard`.
+- [x] Move executable startup code to `cmd/switchboard`.
 - [ ] Move configuration loading, validation, and atomic saving to
   `internal/config`.
 - [ ] Move HTTP routes and embedded frontend handling to `internal/server`.
@@ -76,27 +76,27 @@ Reorganize the code without changing the user-facing dashboard.
 - [ ] Place Linux implementations behind Linux build constraints.
 - [ ] Add compilable Windows and macOS platform implementations or explicit
   unsupported-capability responses.
-- [ ] Keep frontend assets embedded in the executable.
+- [x] Keep frontend assets embedded in the executable.
 
 ### CLI
 
-- [ ] Add `switchboard serve --config <path>`.
-- [ ] Add `switchboard version`.
-- [ ] Add `switchboard validate-config <path>`.
-- [ ] Preserve `switchboard -config <path>` compatibility.
-- [ ] Return useful non-zero exit codes and concise error messages.
-- [ ] Add command-level tests.
+- [x] Add `switchboard serve --config <path>`.
+- [x] Add `switchboard version`.
+- [x] Add `switchboard validate-config <path>`.
+- [x] Preserve `switchboard -config <path>` compatibility.
+- [x] Return useful non-zero exit codes and concise error messages.
+- [x] Add command-level tests.
 
 ### Runtime quality
 
-- [ ] Add version, commit, build date, OS, and architecture build information.
-- [ ] Handle SIGINT/SIGTERM and shut down the HTTP server cleanly.
-- [ ] Apply sensible HTTP read, write, idle, and header timeouts.
+- [x] Add version, commit, build date, OS, and architecture build information.
+- [x] Handle SIGINT/SIGTERM and shut down the HTTP server cleanly.
+- [x] Apply sensible HTTP read, write, idle, and header timeouts.
 - [ ] Make all writable paths configurable and platform appropriate.
-- [ ] Ensure configuration writes remain validated and atomic.
+- [x] Ensure configuration writes remain validated and atomic.
 - [ ] Keep idle CPU and memory use appropriate for small Raspberry Pi systems.
-- [ ] Run `go test ./...`, `go vet ./...`, and frontend syntax checks in CI.
-- [ ] Cross-compile every target in the support matrix.
+- [x] Run `go test ./...`, `go vet ./...`, and frontend syntax checks in CI.
+- [x] Cross-compile every target in the support matrix.
 
 ### Exit criteria
 

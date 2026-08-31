@@ -88,3 +88,13 @@ node --check cmd/switchboard/web/app.js
 ```
 
 Run locally with `go run ./cmd/switchboard -config config.example.yaml`. Live system metrics and service integrations require Linux.
+
+The explicit CLI form is:
+
+```sh
+switchboard serve -config config.example.yaml
+switchboard validate-config config.example.yaml
+switchboard version
+```
+
+The original `switchboard -config ...` invocation remains supported.

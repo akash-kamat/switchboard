@@ -1,0 +1,295 @@
+# Switchboard Roadmap
+
+This document tracks the work required to turn Switchboard into a secure,
+cross-platform application that can be installed as a native background service.
+
+## Status legend
+
+- [ ] Not started
+- [x] Completed
+- **Current phase** identifies the next phase to implement.
+
+## Product decisions
+
+- Switchboard is an application/service, not a public Go library.
+- The dashboard, API, configuration model, and Docker support should remain shared
+  across platforms.
+- Metrics, native service management, paths, permissions, and service registration
+  use platform-specific implementations.
+- The CLI stays intentionally small:
+  - `switchboard serve` runs the dashboard server.
+  - `switchboard version` prints version and build information.
+  - `switchboard validate-config` validates YAML without starting the server or
+    changing any files.
+- The existing invocation remains compatible during migration:
+  `switchboard -config <path>` behaves like `switchboard serve -config <path>`.
+- Native installers manage service installation, removal, starting, and stopping.
+- Go is the only required runtime. Node.js will not be required and an npm package
+  is not planned initially.
+- User configuration must be preserved across upgrades and package removal unless
+  the user explicitly requests a purge.
+
+## Target support matrix
+
+| Operating system | Architectures | Metrics | Docker | Native services | Packaging |
+| --- | --- | --- | --- | --- | --- |
+| Linux | amd64, arm64, armv7 | `/proc`, `/sys` | Docker Engine | systemd first | tar.gz, deb, rpm, Arch |
+| Windows | amd64, arm64 | Windows APIs | Docker Desktop/Engine | Windows Services | zip, winget, Scoop, Chocolatey |
+| macOS | amd64, arm64 | Darwin APIs | Docker Desktop | launchd | tar.gz, Homebrew |
+
+OpenRC and other Linux init systems are possible future additions after systemd
+support is stable.
+
+## Phase 0 — Baseline and compatibility
+
+**Current phase**
+
+Establish a reliable baseline before reorganizing code.
+
+- [ ] Record the current configuration format and API routes.
+- [ ] Add regression tests for existing configuration loading and saving.
+- [ ] Add regression tests for system, service, and configuration API behavior.
+- [ ] Document the current Linux installation and upgrade procedure.
+- [ ] Define supported Go version and minimum supported operating-system versions.
+- [ ] Add a configuration schema version, starting with `version: 1`.
+- [ ] Make missing schema version load as version 1 for backward compatibility.
+- [ ] Decide and document migration behavior for future schema versions.
+
+### Exit criteria
+
+- [ ] Existing DietPi installations can use the reorganized build without changing
+  their configuration.
+- [ ] The test suite detects accidental API or configuration breakage.
+
+## Phase 1 — Portable foundation and minimal CLI
+
+Reorganize the code without changing the user-facing dashboard.
+
+### Project structure
+
+- [ ] Move executable startup code to `cmd/switchboard`.
+- [ ] Move configuration loading, validation, and atomic saving to
+  `internal/config`.
+- [ ] Move HTTP routes and embedded frontend handling to `internal/server`.
+- [ ] Move Docker integration to `internal/docker`.
+- [ ] Introduce `internal/platform` interfaces for metrics and native services.
+- [ ] Place Linux implementations behind Linux build constraints.
+- [ ] Add compilable Windows and macOS platform implementations or explicit
+  unsupported-capability responses.
+- [ ] Keep frontend assets embedded in the executable.
+
+### CLI
+
+- [ ] Add `switchboard serve --config <path>`.
+- [ ] Add `switchboard version`.
+- [ ] Add `switchboard validate-config <path>`.
+- [ ] Preserve `switchboard -config <path>` compatibility.
+- [ ] Return useful non-zero exit codes and concise error messages.
+- [ ] Add command-level tests.
+
+### Runtime quality
+
+- [ ] Add version, commit, build date, OS, and architecture build information.
+- [ ] Handle SIGINT/SIGTERM and shut down the HTTP server cleanly.
+- [ ] Apply sensible HTTP read, write, idle, and header timeouts.
+- [ ] Make all writable paths configurable and platform appropriate.
+- [ ] Ensure configuration writes remain validated and atomic.
+- [ ] Keep idle CPU and memory use appropriate for small Raspberry Pi systems.
+- [ ] Run `go test ./...`, `go vet ./...`, and frontend syntax checks in CI.
+- [ ] Cross-compile every target in the support matrix.
+
+### Exit criteria
+
+- [ ] All three CLI commands work and are documented.
+- [ ] Linux, Windows, and macOS builds compile in CI.
+- [ ] Existing DietPi behavior and configuration remain compatible.
+
+## Phase 2 — Secure Linux service and native packages
+
+Deliver a production-quality Linux installation, beginning with systemd.
+
+### Filesystem layout
+
+- [ ] Install the executable at `/usr/bin/switchboard` for native packages.
+- [ ] Store administrator configuration in `/etc/switchboard/config.yaml`.
+- [ ] Store persistent writable state in `/var/lib/switchboard`.
+- [ ] Use `/run/switchboard` for temporary runtime state if needed.
+- [ ] Log through stdout/stderr so systemd captures logs in the journal.
+- [ ] Define ownership and permissions for every installed path.
+
+### Least-privilege security
+
+- [ ] Create a dedicated system user and group named `switchboard`.
+- [ ] Run the web server without root privileges.
+- [ ] Bind to loopback by default or clearly warn before exposing the dashboard.
+- [ ] Threat-model Docker socket access, which is effectively root-level access.
+- [ ] Do not silently add the service account to the Docker group.
+- [ ] Design an explicit opt-in mechanism for Docker control.
+- [ ] Design narrowly scoped privilege elevation for approved systemd operations.
+- [ ] Validate service/container identifiers before invoking control operations.
+- [ ] Avoid shell command construction; pass arguments directly to processes.
+- [ ] Add authentication guidance before supporting non-loopback access.
+- [ ] Harden the systemd unit where compatible, including filesystem and privilege
+  restrictions.
+- [ ] Document the security consequences of every optional privileged feature.
+
+### Packaging
+
+- [ ] Create a hardened systemd unit.
+- [ ] Create Debian packages for amd64, arm64, and armv7.
+- [ ] Create RPM packages for amd64, arm64, and armv7 where supported.
+- [ ] Create an Arch Linux `PKGBUILD` for supported architectures.
+- [ ] Ensure installation creates required users, groups, directories, and files.
+- [ ] Ensure upgrades never overwrite an existing configuration.
+- [ ] Ensure uninstall stops and removes the service while preserving user data.
+- [ ] Provide an explicit purge path for configuration and state.
+- [ ] Test install, upgrade, uninstall, reinstall, and failed-upgrade behavior in
+  clean virtual machines or containers.
+
+### Exit criteria
+
+- [ ] DietPi/Raspberry Pi OS, Debian/Ubuntu, Fedora, and Arch installation paths are
+  documented and tested.
+- [ ] Switchboard runs as a dedicated unprivileged account by default.
+- [ ] Docker and systemd control require deliberate, documented opt-in permissions.
+- [ ] Package upgrade preserves configuration and state.
+
+## Phase 3 — Windows and macOS runtime support
+
+Implement native behavior instead of merely producing compilable binaries.
+
+### Windows
+
+- [ ] Collect CPU, memory, storage, temperature where available, uptime, network,
+  hostname, OS, architecture, and local IP using supported Windows APIs.
+- [ ] Detect Docker Desktop/Engine and report a clear unavailable state otherwise.
+- [ ] Implement narrowly scoped Windows Service inspection/control.
+- [ ] Run Switchboard as a Windows Service under an appropriate service identity.
+- [ ] Store configuration and state in documented Windows locations.
+- [ ] Provide zip artifacts for amd64 and arm64.
+- [ ] Test installation and upgrades on supported Windows versions.
+
+### macOS
+
+- [ ] Collect CPU, memory, storage, temperature where available, uptime, network,
+  hostname, OS, architecture, and local IP using supported Darwin APIs.
+- [ ] Detect Docker Desktop and report a clear unavailable state otherwise.
+- [ ] Implement narrowly scoped launchd inspection/control.
+- [ ] Install Switchboard through launchd with appropriate permissions.
+- [ ] Store configuration and state in documented macOS locations.
+- [ ] Provide tar.gz artifacts for Intel and Apple Silicon.
+- [ ] Test installation and upgrades on supported macOS versions.
+
+### Exit criteria
+
+- [ ] Windows and macOS show real native metrics.
+- [ ] Background-service installation, upgrade, and removal work on both platforms.
+- [ ] Missing Docker or unsupported metrics produce useful UI states, not failures.
+
+## Phase 4 — Reproducible releases and one-line installers
+
+Automate builds so users never need Go installed.
+
+### Release automation
+
+- [ ] Build Linux amd64, arm64, and armv7 artifacts.
+- [ ] Build Windows amd64 and arm64 artifacts.
+- [ ] Build macOS amd64 and arm64 artifacts.
+- [ ] Build deb, rpm, and Arch package artifacts.
+- [ ] Produce SHA-256 checksums for every artifact.
+- [ ] Generate a software bill of materials where practical.
+- [ ] Sign release artifacts and document signature verification.
+- [ ] Attach artifacts and release notes to versioned GitHub releases.
+- [ ] Trigger releases from semantic-version tags such as `v1.0.0`.
+- [ ] Prevent publishing when tests or cross-platform builds fail.
+
+### Install scripts
+
+- [ ] Create `install.sh` for Linux and macOS.
+- [ ] Create `install.ps1` for Windows.
+- [ ] Detect OS, architecture, available package format, and init system.
+- [ ] Download only from HTTPS release URLs.
+- [ ] Verify checksums/signatures before installing anything.
+- [ ] Install the native service using the platform-appropriate mechanism.
+- [ ] Preserve configuration during upgrades.
+- [ ] Support an explicit version argument for reproducible installation.
+- [ ] Provide uninstall instructions.
+- [ ] Keep scripts readable and safe to download and inspect before execution.
+- [ ] Publish both one-line and inspect-before-running instructions.
+
+Planned commands:
+
+```sh
+curl -fsSL https://switchboard.example/install.sh | sh
+```
+
+```powershell
+irm https://switchboard.example/install.ps1 | iex
+```
+
+The final domain and URLs must be selected before these commands are published.
+
+### Exit criteria
+
+- [ ] A clean supported machine can install Switchboard without Go or Node.js.
+- [ ] Installers reject corrupt or unverifiable downloads.
+- [ ] Automated release artifacts produce identical behavior to native packages.
+
+## Phase 5 — Package-manager distribution
+
+Publish existing signed release artifacts through native package ecosystems.
+
+Recommended implementation order:
+
+- [ ] Create a Homebrew tap for macOS and Linux.
+- [ ] Create a Scoop bucket for Windows.
+- [ ] Submit a Winget package.
+- [ ] Publish Debian packages in an apt repository.
+- [ ] Publish RPM packages in a yum/dnf repository.
+- [ ] Publish and maintain an Arch AUR package.
+- [ ] Publish a Chocolatey package.
+- [ ] Automate package manifest updates after successful GitHub releases.
+- [ ] Document package-manager-specific upgrades and uninstall behavior.
+
+An npm package is intentionally deferred because Switchboard does not use Node.js.
+It should only be reconsidered if there is a strong user need for npm as a binary
+distribution wrapper.
+
+### Exit criteria
+
+- [ ] Homebrew, Scoop, and Winget installations are documented and tested.
+- [ ] Linux repositories support normal package-manager upgrades.
+- [ ] Package manifests are updated automatically or have a documented maintenance
+  process.
+
+## Phase 6 — Production readiness
+
+- [ ] Add `LICENSE`.
+- [ ] Add `CHANGELOG.md` and adopt semantic versioning.
+- [ ] Add contribution and security-reporting documentation.
+- [ ] Document every configuration field and environment override.
+- [ ] Document API routes and stability expectations.
+- [ ] Add backup, restore, migration, and disaster-recovery instructions.
+- [ ] Add dependency and vulnerability scanning.
+- [ ] Add integration tests for Docker and native service adapters.
+- [ ] Add package installation tests for every supported platform.
+- [ ] Establish a supported-version and security-update policy.
+- [ ] Complete a security review before declaring `v1.0.0` stable.
+
+### Exit criteria
+
+- [ ] A new user can install, configure, update, troubleshoot, and uninstall
+  Switchboard using only the documentation.
+- [ ] Release and security maintenance processes are documented and repeatable.
+
+## Definition of done for each roadmap item
+
+An item is complete only when:
+
+- [ ] Its implementation is merged into the main branch.
+- [ ] Automated tests cover the important behavior.
+- [ ] Relevant platform builds pass.
+- [ ] User-facing behavior is documented.
+- [ ] Upgrade and backward-compatibility effects have been considered.
+- [ ] Security implications have been reviewed.
+

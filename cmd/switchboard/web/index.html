@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4ec669">
+  <title>Switchboard</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="dashboard-window">
+    <header class="window-bar">
+      <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <strong>Switchboard</strong>
+      <div class="window-actions">
+        <span id="updated">Connecting…</span>
+        <button id="theme-toggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
+        <button id="refresh" type="button" title="Refresh dashboard" aria-label="Refresh dashboard">↻</button>
+      </div>
+    </header>
+
+    <div class="window-body">
+      <aside class="sidebar">
+        <nav aria-label="Dashboard sections">
+          <button class="nav-item active" type="button" data-view="overview"><svg aria-hidden="true"><use href="/icons.svg#home"></use></svg> Overview</button>
+          <button class="nav-item" type="button" data-view="overview" data-filter="docker"><svg aria-hidden="true"><use href="/icons.svg#container"></use></svg> Containers</button>
+          <button class="nav-item" type="button" data-view="overview" data-filter="systemd"><svg aria-hidden="true"><use href="/icons.svg#server"></use></svg> Services</button>
+          <button class="nav-item" type="button" data-view="overview" data-filter="all"><svg aria-hidden="true"><use href="/icons.svg#grid"></use></svg> All</button>
+          <button class="nav-item" type="button" data-view="settings"><svg aria-hidden="true"><use href="/icons.svg#settings"></use></svg> Settings</button>
+        </nav>
+
+        <section class="system-details" aria-label="System details">
+          <dl id="system-details"><div><dt>Status</dt><dd>Connecting…</dd></div></dl>
+        </section>
+      </aside>
+
+      <div class="workspace">
+        <section id="overview-view" class="view active">
+          <header class="section-title">
+            <h1>System Overview</h1>
+            <strong id="uptime">Uptime: —</strong>
+          </header>
+          <div class="system-grid" id="system-stats" aria-label="System resource usage">
+            <article class="metric skeleton"></article><article class="metric skeleton"></article><article class="metric skeleton"></article>
+          </div>
+
+          <section class="services-section">
+            <header class="section-title services-title">
+              <h2>Services &amp; Containers</h2>
+              <button id="add-service" class="primary small" type="button">＋ Add Service</button>
+            </header>
+            <div id="error-banner" class="error-banner" role="alert" hidden></div>
+            <div id="services-list" class="service-groups" aria-live="polite"><div class="loading">Loading configured services…</div></div>
+          </section>
+        </section>
+
+        <section id="settings-view" class="view settings-view" hidden>
+          <header class="section-title"><div><h1>Settings</h1><p>Changes are written to config.yaml.</p></div></header>
+          <div class="settings-tabs" role="tablist">
+            <button class="tab active" data-settings-tab="gui" type="button">Dashboard</button>
+            <button class="tab" data-settings-tab="yaml" type="button">YAML editor</button>
+          </div>
+
+          <form id="settings-form" class="settings-panel active">
+            <div class="settings-grid">
+              <label>Listen address <input id="setting-listen" name="listen" required></label>
+              <label>Refresh interval <span class="input-suffix"><input id="setting-refresh" name="refresh" type="number" min="5" max="3600" required><small>seconds</small></span></label>
+              <label>Default theme <select id="setting-theme" name="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">Use device setting</option></select></label>
+              <fieldset><legend>Background</legend><div id="color-palette" class="palette"></div><input id="setting-background" type="color" aria-label="Custom background color"></fieldset>
+            </div>
+
+            <div class="choice-section"><h3>System overview cards</h3><div id="overview-options" class="check-grid"></div></div>
+            <div class="choice-section"><h3>Sidebar system details</h3><div id="detail-options" class="check-grid"></div></div>
+            <div class="choice-section service-config"><div class="subheading"><h3>Configured services</h3><button id="settings-add-service" class="secondary small" type="button">＋ Add</button></div><div id="configured-services"></div></div>
+            <p class="settings-note">Changing the listen address takes effect after restarting Switchboard. Other settings update immediately.</p>
+            <div class="form-actions"><button class="primary" type="submit">Save settings</button></div>
+          </form>
+
+          <section id="yaml-panel" class="settings-panel" hidden>
+            <label class="yaml-label" for="yaml-editor">config.yaml</label>
+            <textarea id="yaml-editor" spellcheck="false" aria-describedby="yaml-status"></textarea>
+            <p id="yaml-status" class="validation-status">Waiting for configuration…</p>
+            <div class="form-actions"><button id="format-yaml" class="secondary" type="button">Format</button><button id="save-yaml" class="primary" type="button" disabled>Save YAML</button></div>
+          </section>
+        </section>
+
+        <footer>
+          <span>Switchboard · Made with ♥ for Raspberry Pi</span>
+          <a href="https://github.com/akash-kamat/switchboard" target="_blank" rel="noopener noreferrer" aria-label="Switchboard on GitHub"><img src="/github.png" alt=""></a>
+        </footer>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="service-dialog">
+    <form id="service-form" method="dialog">
+      <header><h2 id="service-dialog-title">Add service</h2><button class="icon-button" value="cancel" formnovalidate aria-label="Close">×</button></header>
+      <input id="service-index" type="hidden">
+      <div class="dialog-grid">
+        <label>Name <input id="service-name" required></label>
+        <label>Type <select id="service-type"><option value="docker">Docker container</option><option value="systemd">systemd service</option></select></label>
+        <label>Icon <input id="service-icon" list="service-icons" placeholder="auto"></label>
+        <datalist id="service-icons">
+          <option value="auto"><option value="jellyfin"><option value="transmission"><option value="dockge"><option value="n8n">
+          <option value="plex"><option value="qbittorrent"><option value="nextcloud"><option value="paperless-ngx">
+          <option value="portainer"><option value="uptime-kuma"><option value="adguard-home"><option value="docker">
+        </datalist>
+        <label id="target-label">Container name <input id="service-target" required></label>
+        <label>Group <input id="service-group" value="Other" required></label>
+        <label class="wide">Link <input id="service-href" type="url" placeholder="http://192.168.1.10:8080/"></label>
+        <label class="wide">Description <input id="service-description"></label>
+      </div>
+      <p id="service-form-error" class="inline-error" hidden></p>
+      <div class="form-actions"><button class="secondary" value="cancel" formnovalidate>Cancel</button><button class="primary" value="default">Save service</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

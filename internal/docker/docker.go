@@ -1,4 +1,4 @@
-package main
+package docker
 
 import (
 	"bytes"
@@ -11,7 +11,13 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/akash-kamat/switchboard/internal/config"
+	"github.com/akash-kamat/switchboard/internal/platform"
 )
+
+type Service = config.Service
+type ServiceState = platform.ServiceState
 
 type dockerBackend struct {
 	client *http.Client
@@ -26,6 +32,9 @@ func newDockerBackend(socket string) *dockerBackend {
 	}
 	return &dockerBackend{client: &http.Client{Transport: transport, Timeout: 8 * time.Second}}
 }
+
+// New returns a Docker Engine backend using the provided Unix socket.
+func New(socket string) platform.ServiceBackend { return newDockerBackend(socket) }
 
 func (d *dockerBackend) request(method, path string, body any, out any) error {
 	var reader io.Reader

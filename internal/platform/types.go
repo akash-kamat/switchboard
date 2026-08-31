@@ -1,7 +1,9 @@
-package main
+package platform
+
+import "github.com/akash-kamat/switchboard/internal/config"
 
 type ServiceState struct {
-	Service
+	config.Service
 	Status    string  `json:"status"`
 	Autostart bool    `json:"autostart"`
 	CPU       float64 `json:"cpuPercent"`
@@ -31,12 +33,12 @@ type SystemStats struct {
 	Architecture  string  `json:"architecture"`
 }
 
-type serviceBackend interface {
-	State(Service) (ServiceState, error)
-	Action(Service, string) error
-	SetAutostart(Service, bool) error
+type ServiceBackend interface {
+	State(config.Service) (ServiceState, error)
+	Action(config.Service, string) error
+	SetAutostart(config.Service, bool) error
 }
 
-type systemCollector interface {
+type SystemCollector interface {
 	Stats() (SystemStats, error)
 }

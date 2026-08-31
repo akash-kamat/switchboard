@@ -22,11 +22,36 @@ func TestLoadConfigDefaultsAndValidates(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.Listen != ":8080" || cfg.Services[0].Group != "Other" {
+	if cfg.Version != currentConfigVersion || cfg.Listen != ":8080" || cfg.Services[0].Group != "Other" {
 		t.Fatalf("unexpected config: %#v", cfg)
 	}
 	if cfg.Dashboard.RefreshSeconds != 30 || len(cfg.Dashboard.Overview) != 3 {
 		t.Fatalf("unexpected dashboard defaults: %#v", cfg.Dashboard)
+	}
+}
+
+func TestMissingConfigVersionMeansVersionOne(t *testing.T) {
+	cfg, err := parseConfig([]byte("services: []\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Version != 1 {
+		t.Fatalf("version = %d, want 1", cfg.Version)
+	}
+	b, err := marshalConfig(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(string(b), "version: 1\n") {
+		t.Fatalf("marshaled config does not declare schema version: %s", b)
+	}
+}
+
+func TestUnsupportedConfigVersionIsRejected(t *testing.T) {
+	for _, version := range []string{"0", "2"} {
+		if _, err := parseConfig([]byte("version: " + version + "\nservices: []\n")); err == nil {
+			t.Fatalf("version %s was accepted", version)
+		}
 	}
 }
 

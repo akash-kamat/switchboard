@@ -1,3 +1,6 @@
+# Configuration schema. Future releases will migrate older supported versions.
+version: 1
+
 # Bind to the LAN. Use 127.0.0.1:8080 when placing Switchboard behind a proxy.
 listen: ":8080"
 

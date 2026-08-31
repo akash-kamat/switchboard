@@ -40,7 +40,8 @@ func (fakeSystem) Stats() (SystemStats, error) { return SystemStats{CPUPercent: 
 
 func testApp() (*app, *fakeBackend) {
 	b := &fakeBackend{}
-	cfg := Config{Services: []Service{{Name: "My Service", Type: "docker", Container: "demo", Group: "Test"}}}
+	cfg := defaultConfig()
+	cfg.Services = []Service{{Name: "My Service", Type: "docker", Container: "demo", Group: "Test"}}
 	return newApp(cfg, b, b, fakeSystem{}), b
 }
 
@@ -162,6 +163,54 @@ func TestConfigValidationDoesNotWrite(t *testing.T) {
 	a.routes().ServeHTTP(w, r)
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+}
+
+func TestSystemAPIContract(t *testing.T) {
+	a, _ := testApp()
+	w := httptest.NewRecorder()
+	a.routes().ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/system", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	var body map[string]any
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range []string{"cpuPercent", "cpuCores", "memoryUsedBytes", "memoryFreeBytes", "memoryTotalBytes", "swapUsedBytes", "swapFreeBytes", "swapTotalBytes", "diskUsedBytes", "diskFreeBytes", "diskTotalBytes", "temperatureCelsius", "loadOne", "uptimeSeconds", "hostname", "localIp", "os", "kernel", "architecture"} {
+		if _, ok := body[field]; !ok {
+			t.Errorf("response is missing %q", field)
+		}
+	}
+}
+
+func TestConfigAPIContract(t *testing.T) {
+	a, _ := testApp()
+	w := httptest.NewRecorder()
+	a.routes().ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/config", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+	var body struct {
+		Config Config `json:"config"`
+		YAML   string `json:"yaml"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	if body.Config.Version != 1 || !strings.Contains(body.YAML, "version: 1") {
+		t.Fatalf("unexpected config response: %#v", body)
+	}
+}
+
+func TestAPIRoutesRejectWrongMethods(t *testing.T) {
+	a, _ := testApp()
+	for _, path := range []string{"/api/system", "/api/services", "/api/config"} {
+		w := httptest.NewRecorder()
+		a.routes().ServeHTTP(w, httptest.NewRequest(http.MethodDelete, path, nil))
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Errorf("DELETE %s: status = %d, want %d", path, w.Code, http.StatusMethodNotAllowed)
+		}
 	}
 }
 

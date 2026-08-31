@@ -22,7 +22,10 @@ var allowedSystemDetails = map[string]bool{
 	"hostname": true, "local_ip": true, "os": true, "uptime": true, "kernel": true, "architecture": true,
 }
 
+const currentConfigVersion = 1
+
 type Config struct {
+	Version   int             `yaml:"version" json:"version"`
 	Listen    string          `yaml:"listen" json:"listen"`
 	Dashboard DashboardConfig `yaml:"dashboard,omitempty" json:"dashboard"`
 	Services  []Service       `yaml:"services" json:"services"`
@@ -50,7 +53,8 @@ type Service struct {
 
 func defaultConfig() Config {
 	return Config{
-		Listen: ":8080",
+		Version: 1,
+		Listen:  ":8080",
 		Dashboard: DashboardConfig{
 			RefreshSeconds: 30,
 			Theme:          "light",
@@ -84,6 +88,9 @@ func parseConfig(b []byte) (Config, error) {
 }
 
 func validateConfig(cfg *Config) error {
+	if cfg.Version != currentConfigVersion {
+		return fmt.Errorf("config version must be %d (got %d)", currentConfigVersion, cfg.Version)
+	}
 	cfg.Listen = strings.TrimSpace(cfg.Listen)
 	if cfg.Listen == "" {
 		cfg.Listen = ":8080"

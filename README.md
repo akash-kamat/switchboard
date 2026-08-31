@@ -19,6 +19,7 @@ deploy/                systemd unit
 dist/                  local build output (not committed)
 config.example.yaml    documented starter configuration
 PROJECT.md             original project specification
+docs/                  installation, configuration, API, and support contracts
 ```
 
 ## Build
@@ -34,6 +35,9 @@ CGO_ENABLED=0 GOOS=linux GOARCH=arm64 \
 The resulting `dist/switchboard-linux-arm64` file is the complete ARM64 Linux application, including the website and images.
 
 ## Install on DietPi
+
+See [docs/linux-installation.md](docs/linux-installation.md) for installation,
+upgrade, rollback, and removal steps.
 
 ```sh
 sudo install -m 0755 dist/switchboard-linux-arm64 /usr/local/bin/switchboard
@@ -57,7 +61,9 @@ Switchboard has no login by design. Keep it on a trusted LAN, bind it to `127.0.
 
 ## Configuration
 
-Start with [config.example.yaml](config.example.yaml). Existing configurations containing only `listen` and `services` remain valid; dashboard defaults are filled automatically.
+Start with [config.example.yaml](config.example.yaml) and see
+[docs/configuration.md](docs/configuration.md). Existing configurations without a
+`version` field remain valid and are interpreted as schema version 1.
 
 Service icons are detected automatically for common applications. Set `icon` to a bundled name such as `jellyfin`, `transmission`, `dockge`, `n8n`, `plex`, `qbittorrent`, `nextcloud`, `paperless-ngx`, `portainer`, `uptime-kuma`, or `adguard-home`. You can also use an `http` or `https` image URL. Leave it empty or use `auto` for name-based detection.
 
@@ -69,15 +75,9 @@ Docker actions use `/var/run/docker.sock` directly. Systemd actions use `systemc
 
 ## API
 
-- `GET /api/services`
-- `POST /api/services/{name}/start`
-- `POST /api/services/{name}/stop`
-- `POST /api/services/{name}/restart`
-- `POST /api/services/{name}/autostart` with JSON `{ "enabled": true }`
-- `GET /api/system`
-- `GET /api/config`
-- `POST /api/config/validate`
-- `PUT /api/config`
+The current routes and response contracts are documented in [docs/api.md](docs/api.md).
+
+Current platform and toolchain requirements are in [docs/support.md](docs/support.md).
 
 ## Development
 

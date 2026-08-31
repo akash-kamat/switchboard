@@ -42,26 +42,26 @@ support is stable.
 
 ## Phase 0 — Baseline and compatibility
 
-**Current phase**
-
 Establish a reliable baseline before reorganizing code.
 
-- [ ] Record the current configuration format and API routes.
-- [ ] Add regression tests for existing configuration loading and saving.
-- [ ] Add regression tests for system, service, and configuration API behavior.
-- [ ] Document the current Linux installation and upgrade procedure.
-- [ ] Define supported Go version and minimum supported operating-system versions.
-- [ ] Add a configuration schema version, starting with `version: 1`.
-- [ ] Make missing schema version load as version 1 for backward compatibility.
-- [ ] Decide and document migration behavior for future schema versions.
+- [x] Record the current configuration format and API routes.
+- [x] Add regression tests for existing configuration loading and saving.
+- [x] Add regression tests for system, service, and configuration API behavior.
+- [x] Document the current Linux installation and upgrade procedure.
+- [x] Define supported Go version and minimum supported operating-system versions.
+- [x] Add a configuration schema version, starting with `version: 1`.
+- [x] Make missing schema version load as version 1 for backward compatibility.
+- [x] Decide and document migration behavior for future schema versions.
 
 ### Exit criteria
 
-- [ ] Existing DietPi installations can use the reorganized build without changing
+- [x] Existing DietPi installations can use the reorganized build without changing
   their configuration.
-- [ ] The test suite detects accidental API or configuration breakage.
+- [x] The test suite detects accidental API or configuration breakage.
 
 ## Phase 1 — Portable foundation and minimal CLI
+
+**Current phase**
 
 Reorganize the code without changing the user-facing dashboard.
 
@@ -292,4 +292,3 @@ An item is complete only when:
 - [ ] User-facing behavior is documented.
 - [ ] Upgrade and backward-compatibility effects have been considered.
 - [ ] Security implications have been reviewed.
-

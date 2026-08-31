@@ -1,17 +1,17 @@
 pkgname=switchboard-bin
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc="Lightweight dashboard for system services and Docker containers"
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://github.com/akash-kamat/switchboard"
 license=('MIT')
 depends=('systemd')
-source_x86_64=("switchboard_0.1.0_linux_amd64.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.0/switchboard_linux_amd64.tar.gz")
-source_aarch64=("switchboard_0.1.0_linux_arm64.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.0/switchboard_linux_arm64.tar.gz")
-source_armv7h=("switchboard_0.1.0_linux_armv7.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.0/switchboard_linux_armv7.tar.gz")
-sha256sums_x86_64=('03465dc6b337501ac9096f253892b6309f4c5f8ede48dd002d330d4cbd1e59a3')
-sha256sums_aarch64=('2cf36f9c68eb08c88b50605a9de707307eca8ade476453c7c41fe34bec897ad9')
-sha256sums_armv7h=('d0978ff065dc283ce0731ab51471b9267b93c615cd152851eb236d3abdab6499')
+source_x86_64=("switchboard_0.1.1_linux_amd64.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_linux_amd64.tar.gz")
+source_aarch64=("switchboard_0.1.1_linux_arm64.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_linux_arm64.tar.gz")
+source_armv7h=("switchboard_0.1.1_linux_armv7.tar.gz::https://github.com/akash-kamat/switchboard/releases/download/v0.1.1/switchboard_linux_armv7.tar.gz")
+sha256sums_x86_64=('475ff9b987b29116d3faad516800d51d6cbbd30360e883b396f986974e509ede')
+sha256sums_aarch64=('5239d50c25e01197d5638e0356586bfe843ecd434e0ba59129e32282350bd375')
+sha256sums_armv7h=('6518c8aa458aa84fef77afd6c7bdbf5feb6fd1ac2d56498d59898bd1ed536084')
 
 package() {
   install -Dm755 "$srcdir/switchboard" "$pkgdir/usr/bin/switchboard"

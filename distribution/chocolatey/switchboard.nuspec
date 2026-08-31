@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
-    <id>switchboard</id><version>0.1.0</version><title>Switchboard</title>
+    <id>switchboard</id><version>0.1.1</version><title>Switchboard</title>
     <authors>Akash Kamat</authors><license type="expression">MIT</license>
     <projectUrl>https://github.com/akash-kamat/switchboard</projectUrl>
     <description>Lightweight dashboard for system services and Docker containers.</description>

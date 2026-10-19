@@ -17,13 +17,13 @@ jobs:
   linux-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
       - name: Build snapshot release
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
           version: v2.12.7
@@ -64,7 +64,7 @@ jobs:
           sudo test -f /etc/switchboard/config.yaml
           sudo dpkg -i "$deb"
           test "$(sudo sha256sum /etc/switchboard/config.yaml | cut -d ' ' -f 1)" = "$config_hash"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: switchboard-snapshot
           path: release-dist/*
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: switchboard-snapshot
           path: release-dist
@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: switchboard-snapshot
           path: release-dist

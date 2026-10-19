@@ -26,7 +26,7 @@ jobs:
       SIGNING_KEY: ${{ secrets.PACKAGE_SIGNING_KEY }}
       SIGNING_PASSPHRASE: ${{ secrets.PACKAGE_SIGNING_PASSPHRASE }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Require protected signing material
         run: |
           test -n "$SIGNING_KEY" || { echo "PACKAGE_SIGNING_KEY is not configured" >&2; exit 1; }
@@ -65,7 +65,7 @@ jobs:
           printf '%s' "$SIGNING_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --armor --detach-sign public/rpm/repodata/repomd.xml
           fingerprint=$(gpg --batch --with-colons --list-secret-keys | awk -F: '$1 == "fpr" {print $10; exit}')
           gpg --armor --export "$fingerprint" >public/rpm/RPM-GPG-KEY-switchboard
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: public
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
